@@ -70,8 +70,12 @@ public class AdditionalLootTables
 
 	public static final String loot_folder_name = "additional-loot-tables";
 	public static Path loot_folder = null;
-	private static Map<String,Map<String,List<LootPool>>> additional_loot = null; // <category,<table name,list of jsons>> ex: <"chests",<"igloo_chest",list>>
+	private static Map<String, Map<String,List<LootPool>>> additional_loot = null; // <category,<table name,list of jsons>> ex: <"chests",<"igloo_chest",list>>
 	
+	/**
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
@@ -97,15 +101,26 @@ public class AdditionalLootTables
 			}
 		}catch(IOException ex){
 			FMLLog.log(Level.ERROR,ex,"%s: Failed to extract example additional loot tables",MODID);
-			if(AdditionalLootTables.strict_mode) throw new RuntimeException(ex);
+			if(AdditionalLootTables.strict_mode)
+				throw new RuntimeException(ex);
 		}
 	}
+	
+	/**
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
 		// register event handler
 		EVENT_BUS.register(new ALTEventHandler());
 	}
+	
+	/**
+	 * 
+	 * @param event
+	 */
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		getAdditionalLootTables(); // forces parsing of files during initialization
@@ -119,7 +134,7 @@ public class AdditionalLootTables
 	 * the second level is the table name (e.g. "village_blacksmith") and the third level is a list of LootPool
 	 * instances.
 	 */
-	public synchronized static Map<String,Map<String,List<LootPool>>> getAdditionalLootTables(){
+	public static synchronized Map<String,Map<String,List<LootPool>>> getAdditionalLootTables(){
 		if(additional_loot == null) {
 			additional_loot = new HashMap<>();
 			FMLLog.info("%s: Parsing additional loot tables", MODID);
@@ -192,7 +207,8 @@ public class AdditionalLootTables
 						});
 			} catch (IOException ex) {
 				FMLLog.log(Level.ERROR, ex, "%s: Cannot access additional loot tables folder!", MODID);
-				if (AdditionalLootTables.strict_mode) throw new RuntimeException(ex);
+				if (AdditionalLootTables.strict_mode)
+					throw new RuntimeException(ex);
 			}
 		}
 
@@ -201,7 +217,8 @@ public class AdditionalLootTables
 
 	private static final void removeFinalModifierFromField(Field f) throws NoSuchFieldException, IllegalAccessException {
 		// Warning: invoking shadow magic
-		if((f.getModifiers() & Modifier.FINAL) == 0) return; // already done
+		if((f.getModifiers() & Modifier.FINAL) == 0)
+			return; // already done
 		Field modifiers = Field.class.getDeclaredField("modifiers");
 		modifiers.setAccessible(true);
 		modifiers.set(f,(int)modifiers.get(f) & ~Modifier.FINAL);
@@ -256,11 +273,17 @@ public class AdditionalLootTables
 		Class ctxClass = Class.forName(className_LootTableContext);
 		Constructor constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
 		constructor.setAccessible(true);
-		Object o = constructor.newInstance(rsrc,isCustom);
-		return o;
+		return constructor.newInstance(rsrc,isCustom);
 	}
 
 
+	/**
+	 * 
+	 * @param t
+	 * @return
+	 * @throws IllegalAccessException
+	 * @throws NoSuchFieldException
+	 */
 	public static LootPool[] getPoolsFromLootTable(LootTable t) throws IllegalAccessException, NoSuchFieldException {
 		// time for shadow magic
 		Field[] vars = LootTable.class.getDeclaredFields();
@@ -276,9 +299,15 @@ public class AdditionalLootTables
 		throw new NoSuchFieldException("Could not find List<LootPool> field in LootTable");
 	}
 
+	/**
+	 * 
+	 * @param t
+	 * @param pools
+	 */
 	@Deprecated
 	public static void addPoolsToLootTable(LootTable t, List<LootPool> pools) {
-		for(LootPool pool : pools) t.addPool(pool);
+		for(LootPool pool : pools)
+			t.addPool(pool);
 	}
 
 }
