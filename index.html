@@ -1,34 +1,78 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<!--
+  Material Design Lite
+  Copyright 2015 Google Inc. All rights reserved.
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Additionalloottables : ">
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+      https://www.apache.org/licenses/LICENSE-2.0
 
-    <title>Additionalloottables</title>
-  </head>
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License
+-->
+<html lang="en">
 
-  <body>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Minecraft Mod Development">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <title>AdditionalLootTables - Minecraft Mod Development</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.2.0/material.grey-pink.min.css" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/MinecraftModDevelopment/AdditionalLootTables">View on GitHub</a>
-
-          <h1 id="project_title">Additionalloottables</h1>
-          <h2 id="project_tagline"></h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/MinecraftModDevelopment/AdditionalLootTables/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/MinecraftModDevelopment/AdditionalLootTables/tarball/master">Download this project as a tar.gz file</a>
-            </section>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header mdl-layout__header--waterfall portfolio-header">
+            <div class="mdl-layout__header-row portfolio-logo-row">
+                <span class="mdl-layout__title">
+                    <div class="portfolio-logo"></div>
+                    <span class="mdl-layout__title">Minecraft Mod Development</span>
+                </span>
+            </div>
+            <div class="mdl-layout__header-row portfolio-navigation-row mdl-layout--large-screen-only">
+                <nav class="mdl-navigation mdl-typography--body-1-force-preferred-font">
+                    <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/index.html">Home</a>
+                    <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/blog.html">Mods</a>
+                    <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/about.html">About</a>
+                    <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/contact.html">Contact</a>
+                    <a class="mdl-navigation__link is-active" href="https://minecraftmoddevelopment.github.io/AdditionalLootTables/">"AdditionalLootTables"</a>
+                </nav>
+            </div>
         </header>
-    </div>
+
+
+        <div class="mdl-layout__drawer mdl-layout--small-screen-only">
+            <nav class="mdl-navigation mdl-typography--body-1-force-preferred-font">
+                <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/index.html">Home</a>
+                <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/blog.html">Mods</a>
+                <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/about.html">About</a>
+                <a class="mdl-navigation__link" href="https://minecraftmoddevelopment.github.io/contact.html">Contact</a>
+                <a class="mdl-navigation__link is-active" href="https://minecraftmoddevelopment.github.io/AdditionalLootTables/">"AdditionalLootTables"</a>
+            </nav>
+        </div>
+        <main class="mdl-layout__content">
+            <div class="mdl-grid portfolio-max-width">
+                <div class="mdl-cell mdl-cell--12-col mdl-card mdl-shadow--4dp">
 
     <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <p align="center"><img src="https://media-elerium.cursecdn.com/avatars/36/700/635941942856548707.png" alt="AdditionalLootTables" height="40%" width="80%"></p>
+
+<h3>
+<a id="curse-page" class="anchor" href="#curse-page" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a><a href="https://minecraft.curseforge.com/projects/additional-loot-tables">Curse Page</a>
+</h3>
+
+<p>    <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
@@ -44,16 +88,83 @@
 <p>For example, <strong>ModX</strong> wants to make dungeon chests contain a jetpack as treasure. To do this, <strong>ModX</strong> creates the file <strong>config/additional-loot-tables/modx/chests/simple_dungeon.json</strong>. This file contains the loot table definition for spawning a jetpack. When a player with <strong>ModX</strong> and <strong>AdditionalLootTables</strong> installed creates or loads a world, <strong>AdditionalLootTables</strong> automatically detects the files in <strong>config/additional-loot-tables</strong> and merges them with the default (or manually added) Minecraft loot tables.</p>
       </section>
     </div>
+    <p class="mdl-card__supporting-text left-padding"> Copyright (C) &lt;2016&gt; &lt;----&gt;
+    </p>
+    </p>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Additionalloottables maintained by <a href="https://github.com/MinecraftModDevelopment">MinecraftModDevelopment</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
+
+
+                        <div class="mdl-card__supporting-text left-padding">
+<p><code>
+The MIT License (MIT)
+
+Copyright (c) 2016 Chris Hall
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</code></p>
+                        </div>
+
+
+<p class="mdl-card__supporting-text left-padding"><a href="https://raw.githubusercontent.com/MinecraftModDevelopment/AdditionalLootTables/master/LICENSE">LICENSE.txt</a></p>
+
+<hr>
+
+<h3>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h3>
+
+<p class="mdl-card__supporting-text left-padding"><a href="https://github.com/MinecraftModDevelopment/HempFarmer/blob/master/CodingStyle.md">CodingStyle</a></p>
+
+
+                        <div class="mdl-card__supporting-text left-padding">
+<p><code>
+<p><em>Anyone who submits content to this project will be credited. Please state how you would like to be identified in your first pull request or add it yourself in the <a href="https://github.com/MinecraftModDevelopment/AdditionalLootTables/blob/master/src/main/resources/mcmod.info#L9-L10">mcmod.info</a> file along with your first pull.
+Any content contributed to this project should be done via pull request at the git repository.
+By contributing to this project you are agreeing that your contribution becomes part of the project and to the terms and conditions of the <a href="https://raw.githubusercontent.com/MinecraftModDevelopment/AdditionalLootTables/master/LICENSE">AdditionalLootTables license</a>.</em></p>
+</code></p>
+                        </div>
+
+
+
+<h3>
+<a id="reporting-bugsissues" class="anchor" href="#reporting-bugsissues" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Reporting Bugs/Issues</h3>
+
+<p class="mdl-card__supporting-text left-padding"><a href="https://github.com/MinecraftModDevelopment/AdditionalLootTables/issues">Report Issues or Bugs</a></p>
+      </section>
     </div>
 
-    
 
-  </body>
+                </div>
+            </div>
+            <footer class="mdl-mini-footer">
+                <div class="mdl-mini-footer__left-section">
+                    <div class="mdl-logo">Minecraft Mod Development</div>
+                </div>
+                <div class="mdl-mini-footer__right-section">
+                    <ul class="mdl-mini-footer__link-list">
+                        <li><a href="#">Help</a></li>
+                        <li><a href="#">Privacy & Terms</a></li>
+                    </ul>
+                </div>
+            </footer>
+        </main>
+    </div>
+    <script src="https://code.getmdl.io/1.2.0/material.min.js"></script>
+</body>
+
 </html>
