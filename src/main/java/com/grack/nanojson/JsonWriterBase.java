@@ -16,10 +16,11 @@
 package com.grack.nanojson;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Stack;
 
 /**
  * Internal class that handles emitting to an {@link Appendable}. Users only see
@@ -31,8 +32,22 @@ import java.util.Stack;
  */
 class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 		JsonSink<SELF> {
+	static final int BUFFER_SIZE = 10 * 1024;
+	private static final char[] NULL = new char[] { 'n', 'u', 'l', 'l' };
+	private static final char[] TRUE = new char[] { 't', 'r', 'u', 'e' };
+	private static final char[] FALSE = new char[] { 'f', 'a', 'l', 's', 'e' };
+	private static final char[] HEX = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8',
+			'9', 'a', 'b', 'c', 'd', 'e', 'f' };
+	private static final char[] UNICODE_SMALL = { '\\', 'u', '0', '0' };
+	private static final char[] UNICODE_LARGE = { '\\', 'u' };
 	protected final Appendable appendable;
-	private Stack<Boolean> states = new Stack<Boolean>();
+	protected final OutputStream out;
+	protected final boolean utf8;
+	private final StringBuilder buffer;
+	private final byte[] bb;
+	private int bo = 0;
+	private BitSet states = new BitSet();
+	private int stateIndex = 0;
 	private boolean first = true;
 	private boolean inObject;
 
@@ -48,7 +63,20 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 
 	JsonWriterBase(Appendable appendable, String indent) {
 		this.appendable = appendable;
+		this.out = null;
 		this.indentString = indent;
+		utf8 = false;
+		buffer = new StringBuilder(BUFFER_SIZE);
+		bb = null;
+	}
+
+	JsonWriterBase(OutputStream out, String indent) {
+		this.appendable = null;
+		this.out = out;
+		this.indentString = indent;
+		utf8 = true;
+		buffer = null;
+		bb = new byte[BUFFER_SIZE];
 	}
 
 	/**
@@ -107,14 +135,14 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF nul() {
 		preValue();
-		raw("null");
+		raw(NULL);
 		return castThis();
 	}
 
 	@Override
 	public SELF nul(String key) {
 		preValue(key);
-		raw("null");
+		raw(NULL);
 		return castThis();
 	}
 
@@ -194,7 +222,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF value(boolean b) {
 		preValue();
-		raw(Boolean.toString(b));
+		raw(b ? TRUE : FALSE);
 		return castThis();
 	}
 
@@ -216,7 +244,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	public SELF value(Number n) {
 		preValue();
 		if (n == null)
-			raw("null");
+			raw(NULL);
 		else
 			raw(n.toString());
 		return castThis();
@@ -248,7 +276,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF value(String key, boolean b) {
 		preValue(key);
-		raw(Boolean.toString(b));
+		raw(b ? TRUE : FALSE);
 		return castThis();
 	}
 
@@ -278,7 +306,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF array() {
 		preValue();
-		states.push(inObject);
+		states.set(stateIndex++, inObject);
 		inObject = false;
 		first = true;
 		raw('[');
@@ -288,7 +316,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF object() {
 		preValue();
-		states.push(inObject);
+		states.set(stateIndex++, inObject);
 		inObject = true;
 		first = true;
 		raw('{');
@@ -302,7 +330,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF array(String key) {
 		preValue(key);
-		states.push(inObject);
+		states.set(stateIndex++, inObject);
 		inObject = false;
 		first = true;
 		raw('[');
@@ -312,7 +340,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	@Override
 	public SELF object(String key) {
 		preValue(key);
-		states.push(inObject);
+		states.set(stateIndex++, inObject);
 		inObject = true;
 		first = true;
 		raw('{');
@@ -325,7 +353,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 
 	@Override
 	public SELF end() {
-		if (states.size() == 0)
+		if (stateIndex == 0)
 			throw new JsonWriterException("Invalid call to end()");
 
 		if (inObject) {
@@ -340,7 +368,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 		}
 
 		first = false;
-		inObject = states.pop();
+		inObject = states.get(--stateIndex);
 		return castThis();
 	}
 
@@ -352,12 +380,14 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	 *             and objects that were started have been properly ended.
 	 */
 	protected void doneInternal() {
-		if (states.size() > 0)
+		if (stateIndex > 0)
 			throw new JsonWriterException(
 					"Unclosed JSON objects and/or arrays when closing writer");
 		if (first)
 			throw new JsonWriterException(
 					"Nothing was written to the JSON writer");
+
+		flush();
 	}
 
 	private void appendIndent() {
@@ -371,16 +401,57 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 	}
 
 	private void raw(String s) {
-		try {
-			appendable.append(s);
-		} catch (IOException e) {
-			throw new JsonWriterException(e);
+		if (utf8) {
+			int l = s.length();
+			if (bo + l > BUFFER_SIZE)
+				flush();
+			for (int i = 0; i < l; i++)
+				bb[bo++] = (byte) s.charAt(i);
+		} else {
+			buffer.append(s);
+			if (buffer.length() > BUFFER_SIZE) {
+				flush();
+			}
+		}
+	}
+
+	private void raw(char[] c) {
+		if (utf8) {
+			int l = c.length;
+			if (bo + l > BUFFER_SIZE)
+				flush();
+			for (int i = 0; i < l; i++)
+				bb[bo++] = (byte) c[i];
+		} else {
+			buffer.append(c);
+			if (buffer.length() > BUFFER_SIZE) {
+				flush();
+			}
 		}
 	}
 
 	private void raw(char c) {
+		if (utf8) {
+			if (bo + 1 > BUFFER_SIZE)
+				flush();
+			bb[bo++] = (byte)c;
+		} else {
+			buffer.append(c);
+			if (buffer.length() > BUFFER_SIZE) {
+				flush();
+			}
+		}
+	}
+
+	private void flush() {
 		try {
-			appendable.append(c);
+			if (utf8) {
+				out.write(bb, 0, bo);
+				bo = 0;
+			} else {
+				appendable.append(buffer.toString());
+				buffer.setLength(0);
+			}
 		} catch (IOException e) {
 			throw new JsonWriterException(e);
 		}
@@ -390,7 +461,7 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 		if (first) {
 			first = false;
 		} else {
-			if (states.size() == 0)
+			if (stateIndex == 0)
 				throw new JsonWriterException(
 						"Invalid call to emit a value in a finished JSON writer");
 			raw(',');
@@ -463,10 +534,52 @@ class JsonWriterBase<SELF extends JsonWriterBase<SELF>> implements
 				break;
 			default:
 				if (shouldBeEscaped(c)) {
-					String t = "000" + Integer.toHexString(c);
-					raw("\\u" + t.substring(t.length() - "0000".length()));
+					if (c < 0x100) {
+						raw(UNICODE_SMALL);
+						raw(HEX[(c >> 4) & 0xf]);
+						raw(HEX[c & 0xf]);
+					} else {
+						raw(UNICODE_LARGE);
+						raw(HEX[(c >> 12) & 0xf]);
+						raw(HEX[(c >> 8) & 0xf]);
+						raw(HEX[(c >> 4) & 0xf]);
+						raw(HEX[c & 0xf]);
+					}
 				} else {
-					raw(c);
+					if (utf8) {
+						if (bo + 4 > BUFFER_SIZE) // 4 is the max char size
+							flush();
+						if (c < 0x80) {
+							bb[bo++] = (byte) c;
+						} else if (c < 0x800) {
+							bb[bo++] = (byte) (0xc0 | c >> 6);
+							bb[bo++] = (byte) (0x80 | c & 0x3f);
+						} else if (c < 0xd800) {
+							bb[bo++] = (byte) (0xe0 | c >> 12);
+							bb[bo++] = (byte) (0x80 | (c >> 6) & 0x3f);
+							bb[bo++] = (byte) (0x80 | c & 0x3f);
+						} else if (c < 0xdfff) {
+							// TODO: bad surrogates
+							i++;
+
+							int fc = Character.toCodePoint(c, s.charAt(i));
+							if (fc < 0x1fffff) {
+								bb[bo++] = (byte) (0xf0 | fc >> 18);
+								bb[bo++] = (byte) (0x80 | (fc >> 12) & 0x3f);
+								bb[bo++] = (byte) (0x80 | (fc >> 6) & 0x3f);
+								bb[bo++] = (byte) (0x80 | fc & 0x3f);
+							} else {
+								throw new JsonWriterException("Unable to encode character 0x" 
+										+ Integer.toHexString(fc));
+							}
+						} else {
+							bb[bo++] = (byte) (0xe0 | c >> 12);
+							bb[bo++] = (byte) (0x80 | (c >> 6) & 0x3f);
+							bb[bo++] = (byte) (0x80 | c & 0x3f);
+						}
+					} else {
+						raw(c);
+					}
 				}
 			}
 		}
