@@ -246,12 +246,12 @@ public class AdditionalLootTables
 	}
 
 	private static void popLootTableContext() throws NoSuchFieldException, IllegalAccessException {
+		@SuppressWarnings("rawtypes")
 		ThreadLocal<Deque> contextQ = hackLootTableContextDeque();
 		if(contextQ.get() != null){
 			contextQ.get().pop();
 		}
 	}
-
 
 	private static void pushLootTableContext(String category, String entry) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
 		ThreadLocal<Deque> contextQ = hackLootTableContextDeque();
@@ -270,8 +270,8 @@ public class AdditionalLootTables
 
 	private static Object hackNewLootTableContext(ResourceLocation rsrc, boolean isCustom) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-		Class ctxClass = Class.forName(className_LootTableContext);
-		Constructor constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
+		Class<?> ctxClass = Class.forName(className_LootTableContext);
+		Constructor<?> constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
 		constructor.setAccessible(true);
 		return constructor.newInstance(rsrc,isCustom);
 	}
@@ -290,9 +290,9 @@ public class AdditionalLootTables
 		for(Field v : vars){
 			if(v.getType().isAssignableFrom(List.class)){
 				v.setAccessible(true);
-				if( ((List)v.get(t)).isEmpty()
-						|| ((List)v.get(t)).get(0) instanceof LootPool) {
-					return ((List<LootPool>)v.get(t)).toArray(new LootPool[0]);
+				if( ((List<?>)v.get(t)).isEmpty()
+						|| ((List<?>)v.get(t)).get(0) instanceof LootPool) {
+					return ((List<?>)v.get(t)).toArray(new LootPool[0]);
 				}
 			}
 		}
