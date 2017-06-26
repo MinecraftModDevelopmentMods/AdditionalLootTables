@@ -48,7 +48,7 @@ version = mc_version + '-' + short_version
 if (System.getenv().BUILD_NUMBER) {
     version += '.' + System.getenv().BUILD_NUMBER
 }
-group = "com.mcmoddev"
+group = 'com.mcmoddev'
 archivesBaseName = 'AdditionalLootTables'
 sourceCompatibility = targetCompatibility = '1.8'
 
