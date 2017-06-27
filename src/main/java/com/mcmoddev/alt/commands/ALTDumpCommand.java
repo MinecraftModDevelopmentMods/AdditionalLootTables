@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import com.mcmoddev.alt.AdditionalLootTables;
+import com.mcmoddev.alt.util.ALTFileUtils;
 import com.mcmoddev.alt.util.PatchedLootEntrySerialiser;
 
 import net.minecraft.command.CommandBase;
@@ -75,9 +76,11 @@ public class ALTDumpCommand extends CommandBase {
 					f.getParentFile().mkdirs();
 				} 
 				
-				if( !f.exists() ) {
-					f.createNewFile();
+				if( f.exists() ) {
+					ALTFileUtils.safeDelete(f);
 				}
+				
+				f.createNewFile();
 				
 				FileUtils.writeStringToFile(f, gson.toJson(table));
 			} catch( IOException e ) {
