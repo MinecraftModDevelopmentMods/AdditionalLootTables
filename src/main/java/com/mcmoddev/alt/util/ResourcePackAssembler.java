@@ -7,6 +7,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.actors.threadpool.Arrays;
+
 import org.apache.commons.io.FileUtils;
 
 import com.mcmoddev.alt.AdditionalLootTables;
@@ -40,7 +42,7 @@ import java.util.List;
  */
 @SideOnly(Side.CLIENT)
 public class ResourcePackAssembler {
-    private static final String MC_META_BASE = "{\"pack\":{\"pack_format\":1,\"description\":\"%s\"}}";
+    private static final String MC_META_BASE = "{\n\t\"pack\":{\n\t\t\"pack_format\":3,\n\t\t\"description\":\"%s\"\n\t}\n}";
     private static List<IResourcePack> defaultResourcePacks = ReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao", "ap");
     private List<CustomFile> files = new ArrayList<>();
     private File dir;
@@ -60,7 +62,7 @@ public class ResourcePackAssembler {
         this.dir = directory;
         this.zip = new File(dir.getAbsolutePath() + ".zip");
         this.mcmeta = String.format(MC_META_BASE, packName);
-        this.assetsPath = "/assets/" + modid + File.separator;
+        this.assetsPath = "/assets/" + modid + "/";
     }
 
     /**
@@ -71,7 +73,11 @@ public class ResourcePackAssembler {
      * @param file The file to add.
      */
     public void addFile(String path, File file) {
-        files.add(new CustomFile(assetsPath + path, file));
+    	if( path.startsWith("/additional-loot-tables") ) {
+    		String extBase = path.replace("/additional-loot-tables/", "loot_tables!!!");
+    		String finalName = extBase.replaceFirst("/", "_").replaceAll("!!!", "/");
+    		files.add(new CustomFile(assetsPath + finalName, file));
+    	}
     }
 
     /**
@@ -102,9 +108,13 @@ public class ResourcePackAssembler {
             writeNewFile(metaFile, mcmeta);
 
             for (CustomFile custom : files) {
-                File directory = new File(pathToDir + (custom.ext != null ? File.separator + custom.ext : ""));
+            	String bDN = pathToDir + (custom.ext != null ? File.separator + custom.ext : "");
+            	String mungeBit = bDN.substring(bDN.lastIndexOf('/')+1);
+                File directory = new File(bDN.substring(0, bDN.lastIndexOf('/')));
                 directory.mkdirs();
-                FileUtils.copyFile(custom.file, new File(directory.getAbsolutePath() + File.separator + custom.file.getName()));
+                String newFileName = directory.getAbsolutePath() + File.separator + mungeBit + "_" + custom.file.getName();
+                
+                FileUtils.copyFile(custom.file, new File(newFileName));
             }
 
             ALTFileUtils.zipFolderContents(dir, zip);
@@ -128,7 +138,7 @@ public class ResourcePackAssembler {
         if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             try {
 
-                File dest = Paths.get(dir.getParent(), "resourcepack", zip.getName()).toFile();
+                File dest = new File(dir.getParent() + "/resourcepack/" + zip.getName());
                 ALTFileUtils.safeDelete(dest);
                 FileUtils.copyFile(zip, dest);
                 ALTFileUtils.safeDelete(zip);

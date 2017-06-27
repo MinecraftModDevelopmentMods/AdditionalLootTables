@@ -34,7 +34,7 @@ public class ResourceLoader {
     	File[] files = folder.listFiles();
     	if (files != null) {
     		for (File file : files) {
-    			if (file.isDirectory()) {
+    			if (file.isDirectory() && !"dumps".equals(file.getName())) {
     				copyFilesFromFolder(path + "/" + file.getName(), file);
     			} else {
     				if(file.toString().endsWith(".json")) {

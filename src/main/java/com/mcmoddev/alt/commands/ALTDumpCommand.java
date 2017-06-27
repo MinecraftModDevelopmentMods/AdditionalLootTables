@@ -8,10 +8,8 @@ import org.apache.commons.io.FileUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
+import com.google.gson.JsonParser;
 import com.mcmoddev.alt.AdditionalLootTables;
-import com.mcmoddev.alt.util.ALTFileUtils;
-import com.mcmoddev.alt.util.PatchedLootEntrySerialiser;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -24,6 +22,7 @@ import net.minecraft.world.storage.loot.LootEntry;
 import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTable;
 import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraft.world.storage.loot.RandomValueRange;
 import net.minecraft.world.storage.loot.conditions.LootCondition;
 import net.minecraft.world.storage.loot.conditions.LootConditionManager;
@@ -59,30 +58,33 @@ public class ALTDumpCommand extends CommandBase {
 				.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer())
 				.registerTypeAdapter(LootPool.class, new LootPool.Serializer())
 				.registerTypeAdapter(LootTable.class, new LootTable.Serializer())
-				.registerTypeHierarchyAdapter(LootEntry.class, new PatchedLootEntrySerialiser())
+				.registerTypeHierarchyAdapter(LootEntry.class, new LootEntry.Serializer())
 				.registerTypeHierarchyAdapter(LootFunction.class, new LootFunctionManager.Serializer())
 				.registerTypeHierarchyAdapter(LootCondition.class, new LootConditionManager.Serializer())
 				.registerTypeHierarchyAdapter(LootContext.EntityTarget.class, new LootContext.EntityTarget.Serializer())
-				.setPrettyPrinting().create();
+				.create();
 
+		Gson prettyPrinter = new GsonBuilder().setPrettyPrinting().create();
+		JsonParser parser = new JsonParser();
+		LootTableManager manager = w.getLootTableManager();
 		LootTableList.getAll().forEach( resLoc -> {
-			LootTable table = w.getLootTableManager().getLootTableFromLocation(resLoc);
+			LootTable table = manager.getLootTableFromLocation(resLoc);
 			String dirName = resLoc.getResourceDomain();
 			String fileName = String.format("%s.json", resLoc.getResourcePath());
-			File f = Paths.get(AdditionalLootTables.getLootFolder().toString(),dirName,fileName).toFile();
+			File f = Paths.get(AdditionalLootTables.getLootFolder().toString()+"-dumps",dirName,fileName).toFile();
 			
 			try {
 				if( !f.getParentFile().exists() ) {
 					f.getParentFile().mkdirs();
 				} 
 				
-				if( f.exists() ) {
-					ALTFileUtils.safeDelete(f);
+				if( !f.exists() ) {
+					f.createNewFile();
 				}
-				
-				f.createNewFile();
-				
-				FileUtils.writeStringToFile(f, gson.toJson(table));
+
+				String basic = gson.toJson(table);
+				String prettified = prettyPrinter.toJson(parser.parse(basic));
+				FileUtils.writeStringToFile(f, prettified);
 			} catch( IOException e ) {
 				AdditionalLootTables.logger.error("Error writing loot table %s : %s", f.getPath(), e.getMessage());
 			}

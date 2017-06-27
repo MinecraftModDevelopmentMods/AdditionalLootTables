@@ -52,37 +52,48 @@ public class AdditionalLootTables {
 		ResourceLoader.assembleResourcePack();
 	}
 
-	private void registerLootTable(Path dir, String tableName) {
+	private void registerLootTable(Path rDir, Path dir) {
 		try {
 			Files.list(dir).filter( file -> file.toFile().isFile() )
 			.filter( file -> Files.isReadable(file) )
 			.filter( file -> file.getFileName().toString().endsWith(".json") )
 			.forEach( jsonFile -> {
-				String jsonName = jsonFile.getFileName().toString();
-				String rlocPathSeg = jsonName.substring(0, jsonName.length() - 5);
-				LootTableList.register(new ResourceLocation("ALT", String.format("%s/%s", tableName, rlocPathSeg)));
+				String tableName = jsonFile.getFileName().toString().substring(0, jsonFile.getFileName().toString().length() - 5);
+				String resourceName = rDir.getFileName().toString();
+				String rlocPathSeg = dir.getFileName().toString();
+				String tableFinal = String.format("%s_%s_%s", resourceName, rlocPathSeg, tableName);
+				ResourceLocation tableLoc = new ResourceLocation("alt", tableFinal);
+				
+				LootTableList.register(tableLoc);				
 			});
 		} catch (IOException e) {
 			logger.error("Error registering loot tables: %s", e.getLocalizedMessage());
 		}		
 	}
 	
-	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
+	private void loopTables(Path dir) {
 		try {
-			Files.list(loot_folder).filter( dir -> dir.toFile().isDirectory() ).forEach( dir -> {
-					String tableName = dir.getFileName().toString();
-					registerLootTable(dir, tableName);
-			});
+			Files.list(dir).filter(d -> d.toFile().isDirectory())
+			.forEach( rDir -> registerLootTable(dir, rDir) );
 		} catch(IOException ex ) {
 			logger.error("Error registering loot tables: %s", ex.getMessage());
 		}
 	}
+	
+	@EventHandler
+	public void init(FMLInitializationEvent event)
+	{
+		// do nothing here
+	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		// dump existing loot tables here
+		try {
+			Files.list(loot_folder).filter( dir -> dir.toFile().isDirectory() )
+			.forEach( dir -> loopTables(dir) );
+		} catch(IOException ex ) {
+			logger.error("Error registering loot tables: %s", ex.getMessage());
+		}
 	}
 	
     @EventHandler
