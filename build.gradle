@@ -238,8 +238,8 @@ curseforge {
         }
         mainArtifact(jar) {
             displayName = "$project.description $displayVersion"
-            relations {
-            }
+//          relations {
+//          }
         }
 //        addArtifact(apiJar) {
 //            displayName = "$project.description $displayVersion API"
