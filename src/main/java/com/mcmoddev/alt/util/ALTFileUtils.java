@@ -26,7 +26,7 @@ public class ALTFileUtils {
 			try {
 				Files.createDirectory(path);
 			} catch(IOException ex) {
-				AdditionalLootTables.logger.fatal("Could not create %s: %s", path.toString(), ex.getLocalizedMessage());
+				AdditionalLootTables.logger.fatal("Could not create %s: %s", path.toString(), ex.getMessage());
 			}
 		}
 	}

@@ -60,7 +60,7 @@ public class ResourcePackAssembler {
         this.dir = directory;
         this.zip = new File(dir.getAbsolutePath() + ".zip");
         this.mcmeta = String.format(MC_META_BASE, packName);
-        this.assetsPath = "/assets/" + modid + File.pathSeparator;
+        this.assetsPath = "/assets/" + modid + File.separator;
     }
 
     /**
@@ -102,9 +102,9 @@ public class ResourcePackAssembler {
             writeNewFile(metaFile, mcmeta);
 
             for (CustomFile custom : files) {
-                File directory = new File(pathToDir + (custom.ext != null ? File.pathSeparator + custom.ext : ""));
+                File directory = new File(pathToDir + (custom.ext != null ? File.separator + custom.ext : ""));
                 directory.mkdirs();
-                FileUtils.copyFile(custom.file, new File(directory.getAbsolutePath() + File.pathSeparator + custom.file.getName()));
+                FileUtils.copyFile(custom.file, new File(directory.getAbsolutePath() + File.separator + custom.file.getName()));
             }
 
             ALTFileUtils.zipFolderContents(dir, zip);

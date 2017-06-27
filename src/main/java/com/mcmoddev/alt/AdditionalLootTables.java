@@ -76,7 +76,7 @@ public class AdditionalLootTables {
 					registerLootTable(dir, tableName);
 			});
 		} catch(IOException ex ) {
-			logger.error("Error registering loot tables: %s", ex.getLocalizedMessage());
+			logger.error("Error registering loot tables: %s", ex.getMessage());
 		}
 	}
 

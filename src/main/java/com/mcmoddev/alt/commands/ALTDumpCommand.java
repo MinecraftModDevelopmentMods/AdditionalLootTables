@@ -53,29 +53,35 @@ public class ALTDumpCommand extends CommandBase {
 		if( w.isRemote ) {
 			return;
 		}
-		
+
+		Gson gson = new GsonBuilder()
+				.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer())
+				.registerTypeAdapter(LootPool.class, new LootPool.Serializer())
+				.registerTypeAdapter(LootTable.class, new LootTable.Serializer())
+				.registerTypeHierarchyAdapter(LootEntry.class, new PatchedLootEntrySerialiser())
+				.registerTypeHierarchyAdapter(LootFunction.class, new LootFunctionManager.Serializer())
+				.registerTypeHierarchyAdapter(LootCondition.class, new LootConditionManager.Serializer())
+				.registerTypeHierarchyAdapter(LootContext.EntityTarget.class, new LootContext.EntityTarget.Serializer())
+				.setPrettyPrinting().create();
+
 		LootTableList.getAll().forEach( resLoc -> {
 			LootTable table = w.getLootTableManager().getLootTableFromLocation(resLoc);
 			String dirName = resLoc.getResourceDomain();
 			String fileName = String.format("%s.json", resLoc.getResourcePath());
-			File f = Paths.get(dirName,fileName).toFile();
+			File f = Paths.get(AdditionalLootTables.getLootFolder().toString(),dirName,fileName).toFile();
 			
 			try {
-				f.getParentFile().mkdirs();
-				f.createNewFile();
-
-				Gson gson = new GsonBuilder()
-						.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer())
-						.registerTypeAdapter(LootPool.class, new LootPool.Serializer())
-						.registerTypeAdapter(LootTable.class, new LootTable.Serializer())
-						.registerTypeHierarchyAdapter(LootEntry.class, new PatchedLootEntrySerialiser())
-						.registerTypeHierarchyAdapter(LootFunction.class, new LootFunctionManager.Serializer())
-						.registerTypeHierarchyAdapter(LootCondition.class, new LootConditionManager.Serializer())
-						.registerTypeHierarchyAdapter(LootContext.EntityTarget.class, new LootContext.EntityTarget.Serializer())
-						.create();
+				if( !f.getParentFile().exists() ) {
+					f.getParentFile().mkdirs();
+				} 
+				
+				if( !f.exists() ) {
+					f.createNewFile();
+				}
+				
 				FileUtils.writeStringToFile(f, gson.toJson(table));
 			} catch( IOException e ) {
-				AdditionalLootTables.logger.error("Error writing loot table %s : %s", f.getPath(), e.getLocalizedMessage());
+				AdditionalLootTables.logger.error("Error writing loot table %s : %s", f.getPath(), e.getMessage());
 			}
 		});
 	}
