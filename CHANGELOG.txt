@@ -1,3 +1,4 @@
+Repaired breakage from attempt to use runtime-created resource pack and only the Forge API to load the tables
 Added /alt-dump command
 Updated to 1.11.2
 Cleaned out a whole host of cruft
