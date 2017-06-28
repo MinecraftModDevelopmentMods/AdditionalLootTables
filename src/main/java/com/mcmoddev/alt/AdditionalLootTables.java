@@ -62,7 +62,7 @@ public class AdditionalLootTables {
 				String resourceName = rDir.getFileName().toString();
 				String rlocPathSeg = dir.getFileName().toString();
 				String tableFinal = String.format("%s_%s_%s", resourceName, rlocPathSeg, tableName);
-				ResourceLocation tableLoc = new ResourceLocation("alt", tableFinal);
+				ResourceLocation tableLoc = new ResourceLocation(MODID+"-assets", tableFinal);
 				
 				LootTableList.register(tableLoc);				
 			});

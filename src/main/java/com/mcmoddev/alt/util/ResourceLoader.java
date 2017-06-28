@@ -23,7 +23,7 @@ public class ResourceLoader {
     	File resourceFolder = new File(AdditionalLootTables.ALTBaseConfigPath);
         File resource = resourceFolder.getParentFile();
         assembler = new ResourcePackAssembler(new File(resource, AdditionalLootTables.ALTFolderName),
-                "Additional Loot Tweaker Resources", MODID);
+                "Additional Loot Tables Resources", MODID);
         createImportantFolders();
 
         copyFilesFromFolder("", resourceFolder);

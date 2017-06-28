@@ -43,7 +43,7 @@ import java.util.List;
 @SideOnly(Side.CLIENT)
 public class ResourcePackAssembler {
     private static final String MC_META_BASE = "{\n\t\"pack\":{\n\t\t\"pack_format\":3,\n\t\t\"description\":\"%s\"\n\t}\n}";
-    private static List<IResourcePack> defaultResourcePacks = ReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao", "ap");
+    private static List<IResourcePack> defaultResourcePacks;
     private List<CustomFile> files = new ArrayList<>();
     private File dir;
     private File zip;
@@ -137,12 +137,16 @@ public class ResourcePackAssembler {
     public void inject() {
         if (FMLCommonHandler.instance().getEffectiveSide().isClient()) {
             try {
-
+            	if( defaultResourcePacks == null ) {
+            		defaultResourcePacks = ReflectionHelper.getPrivateValue(Minecraft.class, Minecraft.getMinecraft(), "defaultResourcePacks", "field_110449_ao", "ap");
+            	}
+            	
                 File dest = new File(dir.getParent() + "/resourcepack/" + zip.getName());
                 ALTFileUtils.safeDelete(dest);
                 FileUtils.copyFile(zip, dest);
                 ALTFileUtils.safeDelete(zip);
-                defaultResourcePacks.add(new FileResourcePack(dest));
+                FileResourcePack fsr = new FileResourcePack(dest);
+                defaultResourcePacks.add(fsr);
             } catch (Exception e) {
             	AdditionalLootTables.logger.error(e);
             }
