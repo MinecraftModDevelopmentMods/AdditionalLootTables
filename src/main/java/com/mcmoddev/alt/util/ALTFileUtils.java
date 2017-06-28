@@ -22,7 +22,7 @@ import com.mcmoddev.alt.AdditionalLootTables;
 
 public class ALTFileUtils {
 	public static void createDirectoryIfNotPresent(Path path) {
-		if (path.toFile().exists()) {
+		if (!path.toFile().exists()) {
 			try {
 				Files.createDirectory(path);
 			} catch(IOException ex) {
