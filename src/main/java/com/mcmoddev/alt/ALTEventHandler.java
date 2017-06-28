@@ -8,30 +8,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import com.google.common.collect.Queues;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootEntry;
 import net.minecraft.world.storage.loot.LootPool;
-import net.minecraft.world.storage.loot.LootTable;
-import net.minecraft.world.storage.loot.RandomValueRange;
-import net.minecraft.world.storage.loot.conditions.LootCondition;
-import net.minecraft.world.storage.loot.conditions.LootConditionManager;
-import net.minecraft.world.storage.loot.functions.LootFunction;
-import net.minecraft.world.storage.loot.functions.LootFunctionManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.LootTableLoadEvent;
@@ -44,7 +36,8 @@ public class ALTEventHandler {
 
 	private static JsonParser parser = new JsonParser();
 	private static final AtomicInteger hashCounter = new AtomicInteger(0);
-
+	private static final List<String> alreadyLoaded = new ArrayList<>();
+	
 	@SubscribeEvent
 	public static void lootLoad(LootTableLoadEvent evt) {
 		if (evt.getName().toString().startsWith("minecraft:")) {
@@ -57,29 +50,32 @@ public class ALTEventHandler {
 				.forEach( pos -> {
 					try {
 						File theFile = Paths.get(pos.toString(), filename).toFile();
-						String data = FileUtils.readFileToString(theFile, Charsets.UTF_8);
-						JsonElement baseParse = parser.parse(data);
-						if( baseParse.isJsonObject() && !baseParse.isJsonNull()) {
-							JsonObject root = baseParse.getAsJsonObject();
-							JsonArray pools = root.get("pools").getAsJsonArray();
-							for( int i = 0; i < pools.size(); i++ ) {
-								JsonElement pool = pools.get(i);
-								Object busCache;
-								busCache = hackDisableEventBus();
-								String category = evt.getName().toString().split(":")[1].split("/")[0];
-								String entry = evt.getName().toString().split(":")[1].split("/")[1]; 
-								pushLootTableContext(category,entry);
+						if( !alreadyLoaded.contains(theFile.getCanonicalPath())) {
+							String data = FileUtils.readFileToString(theFile, Charsets.UTF_8);
+							JsonElement baseParse = parser.parse(data);
+							if( baseParse.isJsonObject() && !baseParse.isJsonNull()) {
+								JsonObject root = baseParse.getAsJsonObject();
+								JsonArray pools = root.get("pools").getAsJsonArray();
+								for( int i = 0; i < pools.size(); i++ ) {
+									JsonElement pool = pools.get(i);
+									Object busCache;
+									busCache = hackDisableEventBus();
+									String category = evt.getName().toString().split(":")[1].split("/")[0];
+									String entry = evt.getName().toString().split(":")[1].split("/")[1]; 
+									pushLootTableContext(category,entry);
 
-								JsonObject work = pool.getAsJsonObject();
-								work.addProperty("name", String.format("_entry_%d", hashCounter.incrementAndGet()));
-								
-								LootPool thePool = GSON.fromJson(GSON.toJson(work), LootPool.class);
-								if( thePool != null ) {
-									evt.getTable().addPool(thePool);
+									JsonObject work = pool.getAsJsonObject();
+									work.addProperty("name", String.format("_entry_%d", hashCounter.incrementAndGet()));
+
+									LootPool thePool = GSON.fromJson(GSON.toJson(work), LootPool.class);
+									if( thePool != null ) {
+										evt.getTable().addPool(thePool);
+									}
+									popLootTableContext();
+									hackEnableEventBus(busCache);
 								}
-								popLootTableContext();
-								hackEnableEventBus(busCache);
 							}
+							alreadyLoaded.add(theFile.getCanonicalPath());
 						}
 					}catch(NoSuchFieldException | IllegalAccessException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalStateException | InstantiationException | IOException e) {
 						AdditionalLootTables.logger.fatal("Exception in adding potential added loot table: %s", e.toString());
