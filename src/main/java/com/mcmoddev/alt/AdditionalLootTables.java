@@ -10,12 +10,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.mcmoddev.alt.data.Config;
 import com.mcmoddev.alt.util.ALTFileUtils;
-import com.mcmoddev.alt.util.ResourceLoader;
 import com.mcmoddev.alt.proxy.CommonProxy;
 import com.mcmoddev.alt.commands.ALTDumpCommand;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
@@ -29,7 +29,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 public class AdditionalLootTables {
 	public static final String NAME = "Additional Loot Tables";
 	public static final String MODID = "alt";
-	public static final String VERSION = "2.0.0";
+	public static final String VERSION = "2.0.1";
 
 	@Instance
 	public static AdditionalLootTables INSTANCE = null;
@@ -49,40 +49,19 @@ public class AdditionalLootTables {
 		loot_folder = Paths.get(ALTBaseConfigPath,ALTFolderName);
 		config = new Config(event);
 		ALTFileUtils.createDirectoryIfNotPresent(loot_folder);
-		ResourceLoader.assembleResourcePack();
+		MinecraftForge.EVENT_BUS.register(ALTEventHandler.class);
 	}
 
-	private void registerLootTable(Path dir, String tableName) {
-		try {
-			Files.list(dir).filter( file -> file.toFile().isFile() )
-			.filter( file -> Files.isReadable(file) )
-			.filter( file -> file.getFileName().toString().endsWith(".json") )
-			.forEach( jsonFile -> {
-				String jsonName = jsonFile.getFileName().toString();
-				String rlocPathSeg = jsonName.substring(0, jsonName.length() - 5);
-				LootTableList.register(new ResourceLocation("ALT", String.format("%s/%s", tableName, rlocPathSeg)));
-			});
-		} catch (IOException e) {
-			logger.error("Error registering loot tables: %s", e.getLocalizedMessage());
-		}		
-	}
 	
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		try {
-			Files.list(loot_folder).filter( dir -> dir.toFile().isDirectory() ).forEach( dir -> {
-					String tableName = dir.getFileName().toString();
-					registerLootTable(dir, tableName);
-			});
-		} catch(IOException ex ) {
-			logger.error("Error registering loot tables: %s", ex.getMessage());
-		}
+		// do nothing here
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		// dump existing loot tables here
+		// we do nothing for now
 	}
 	
     @EventHandler
