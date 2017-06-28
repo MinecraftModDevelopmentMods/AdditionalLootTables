@@ -1,0 +1,3 @@
+Added /alt-dump command
+Updated to 1.11.2
+Cleaned out a whole host of cruft
