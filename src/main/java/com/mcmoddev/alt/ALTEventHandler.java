@@ -38,16 +38,9 @@ import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.mcmoddev.alt.data.Constants.GSON;
+
 public class ALTEventHandler {
-	private static Gson gson = new GsonBuilder()
-			.registerTypeAdapter(RandomValueRange.class, new RandomValueRange.Serializer())
-			.registerTypeAdapter(LootPool.class, new LootPool.Serializer())
-			.registerTypeAdapter(LootTable.class, new LootTable.Serializer())
-			.registerTypeHierarchyAdapter(LootEntry.class, new LootEntry.Serializer())
-			.registerTypeHierarchyAdapter(LootFunction.class, new LootFunctionManager.Serializer())
-			.registerTypeHierarchyAdapter(LootCondition.class, new LootConditionManager.Serializer())
-			.registerTypeHierarchyAdapter(LootContext.EntityTarget.class, new LootContext.EntityTarget.Serializer())
-			.create();
 
 	private static JsonParser parser = new JsonParser();
 	private static final AtomicInteger hashCounter = new AtomicInteger(0);
@@ -80,7 +73,7 @@ public class ALTEventHandler {
 								JsonObject work = pool.getAsJsonObject();
 								work.addProperty("name", String.format("_entry_%d", hashCounter.incrementAndGet()));
 								
-								LootPool thePool = gson.fromJson(gson.toJson(work), LootPool.class);
+								LootPool thePool = GSON.fromJson(GSON.toJson(work), LootPool.class);
 								if( thePool != null ) {
 									evt.getTable().addPool(thePool);
 								}
