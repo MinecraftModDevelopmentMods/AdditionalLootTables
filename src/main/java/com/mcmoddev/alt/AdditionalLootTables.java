@@ -21,6 +21,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -67,6 +68,15 @@ public class AdditionalLootTables {
     @EventHandler
     public void onServerStarting(FMLServerStartingEvent ev) {
     	ev.registerServerCommand(new ALTDumpCommand());
+    }
+    
+    @EventHandler
+    public void onIMC(FMLInterModComms.IMCEvent event) {
+        event.getMessages().stream().filter(message -> message.key.equalsIgnoreCase("register"))
+        .forEach(message -> {
+            ResourceLocation value = message.getResourceLocationValue();
+            ALTFileUtils.copyFromResourceIfNotPresent(value);
+        });
     }
     
 	public static Path getLootFolder() {
