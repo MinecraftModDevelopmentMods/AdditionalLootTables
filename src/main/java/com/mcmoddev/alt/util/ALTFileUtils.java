@@ -26,6 +26,7 @@ import com.mcmoddev.alt.AdditionalLootTables;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 public class ALTFileUtils {
 	public static void createDirectoryIfNotPresent(Path path) {
@@ -123,7 +124,13 @@ public class ALTFileUtils {
 	public static void copyFromResourceIfNotPresent(ResourceLocation value) {
 		Path base = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getResourceDomain()).normalize();
 		createDirectoryIfNotPresent( base );
-		File container = Loader.instance().getIndexedModList().get(value.getResourceDomain()).getSource();
+		ModContainer modContainer = Loader.instance().getIndexedModList().get(value.getResourceDomain());
+		if( modContainer == null ) {
+			AdditionalLootTables.logger.error("Unable to get mod container for mod {} - possible malformed ResourceLocation? ({})",
+					value.getResourceDomain(), value.toString());
+			return;
+		}
+		File container = modContainer.getSource();
 		Path root = container.toPath().resolve(Paths.get("assets", value.getResourceDomain(), value.getResourcePath()));
 		
 		if( !root.toFile().isDirectory() ) {
