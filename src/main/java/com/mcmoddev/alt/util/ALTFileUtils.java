@@ -3,6 +3,7 @@ package com.mcmoddev.alt.util;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,14 +12,21 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import com.mcmoddev.alt.AdditionalLootTables;
+
+import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.ModContainer;
 
 public class ALTFileUtils {
 	public static void createDirectoryIfNotPresent(Path path) {
@@ -113,4 +121,83 @@ public class ALTFileUtils {
 		}
 	}
 
+	public static void copyFromResourceIfNotPresent(ResourceLocation value) {
+		Path base = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getResourceDomain()).normalize();
+		createDirectoryIfNotPresent( base );
+		ModContainer modContainer = Loader.instance().getIndexedModList().get(value.getResourceDomain());
+		if( modContainer == null ) {
+			AdditionalLootTables.logger.error("Unable to get mod container for mod {} - possible malformed ResourceLocation? ({})",
+					value.getResourceDomain(), value.toString());
+			return;
+		}
+		File container = modContainer.getSource();
+		Path root = container.toPath().resolve(Paths.get("assets", value.getResourceDomain(), value.getResourcePath()));
+		
+		if( !root.toFile().isDirectory() ) {
+			AdditionalLootTables.logger.error("Mod {} asked us to load from {} but it is not a directory!", value.getResourceDomain(), root.toString());
+			return;
+		}
+		
+		
+		Iterator<Path> itr = null;
+			
+		try {
+			itr = Files.walk(root).iterator();				
+		} catch( IOException e) {
+			AdditionalLootTables.logger.error("Getting iterator for resource of mod {}", value.getResourceDomain(), e);
+			return;
+		}
+		
+		while( itr != null && itr.hasNext() ) {
+			Path current = itr.next();
+				
+			if( current.toFile().isDirectory() ) {
+				Path targetDir = base.resolve(current.toFile().getName());
+				createDirectoryIfNotPresent( targetDir );
+				
+				copyFiles( current, targetDir );
+			}
+		}
+	}
+
+	public static void copyFiles(Path sourceDir, Path targetDir) {
+		Iterator<Path> itr = null;
+
+		try {
+			itr = Files.walk(sourceDir).iterator();
+		} catch( IOException e ) {
+			AdditionalLootTables.logger.error("Unable to get iterator for {}", sourceDir, e);
+			return;
+		}
+
+		while( itr != null && itr.hasNext() ) {
+			Path current = itr.next();
+
+			if( "json".equals(FilenameUtils.getExtension(current.toFile().getName())) ) {
+				File targetFile = Paths.get(targetDir.toString(), current.toFile().getName()).toFile();
+				// only copy out if the target file doesn't already exist
+				// this way we don't overwrite users customized files
+				if( !targetFile.exists() ) {
+					OutputStream out = null;
+					try {
+						out = new FileOutputStream(Paths.get(targetDir.toAbsolutePath().toString(), current.toFile().getName()).toAbsolutePath().toString());
+						copy(current.toFile(), out);
+					} catch (FileNotFoundException e) {
+						AdditionalLootTables.logger.error("Unable to create output stream for {}", Paths.get(targetDir.toAbsolutePath().toString(), current.toFile().getName()).toAbsolutePath().toString(), e);					
+						return;
+					} catch (IOException e) {
+						AdditionalLootTables.logger.error("Error copying config over", e);					
+						return;					
+					} finally {
+						try {
+							if( out != null ) out.close();
+						} catch(IOException e) {
+							AdditionalLootTables.logger.error("Unable to close output stream", e);					
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
 }
