@@ -24,6 +24,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.mcmoddev.alt.AdditionalLootTables;
 
+import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
@@ -31,11 +32,13 @@ import net.minecraftforge.fml.common.ModContainer;
 public class ALTFileUtils {
 	public static void createDirectoryIfNotPresent(Path path) {
 		if (!path.toFile().exists()) {
-			try {
-				Files.createDirectory(path);
-			} catch(IOException ex) {
-				AdditionalLootTables.logger.fatal("Could not create %s: %s", path.toString(), ex.getMessage());
-			}
+				try {
+					Files.createDirectory(path);
+				} catch (IOException e) {
+					CrashReport report = CrashReport.makeCrashReport(e, String.format("Could not create directory %s", path.toString()));
+					report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+					AdditionalLootTables.logger.error(report.getCompleteReport());
+				}
 		}
 	}
 

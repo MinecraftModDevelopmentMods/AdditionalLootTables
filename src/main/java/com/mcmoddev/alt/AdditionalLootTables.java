@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.mcmoddev.alt.data.Config;
 import com.mcmoddev.alt.util.ALTFileUtils;
 import com.mcmoddev.alt.proxy.CommonProxy;
+import com.mcmoddev.alt.api.PluginLoader;
 import com.mcmoddev.alt.commands.ALTDumpCommand;
 
 import net.minecraft.util.ResourceLocation;
@@ -40,7 +41,8 @@ public class AdditionalLootTables {
 	public static String ALTBaseConfigPath = null;
 	private static Path loot_folder;
     private static final String PROXY_BASE = "com.mcmoddev." + MODID + ".proxy.";
-
+    private static final PluginLoader pluginLoader = new PluginLoader();
+    
     @SidedProxy(clientSide = PROXY_BASE + "ClientProxy", serverSide = PROXY_BASE + "ServerProxy")
     public static CommonProxy proxy;
 	
@@ -50,6 +52,7 @@ public class AdditionalLootTables {
 		loot_folder = Paths.get(ALTBaseConfigPath,ALTFolderName);
 		config = new Config(event);
 		ALTFileUtils.createDirectoryIfNotPresent(loot_folder);
+		pluginLoader.load(event);
 		MinecraftForge.EVENT_BUS.register(ALTEventHandler.class);
 	}
 
@@ -57,6 +60,7 @@ public class AdditionalLootTables {
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+		pluginLoader.loadResources();
 		// do nothing here
 	}
 
