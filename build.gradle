@@ -21,7 +21,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5'
     }
@@ -38,7 +38,7 @@ javadoc {
 
 description = 'Additional Loot Tables'
 def mod_file = getModFile()
-def mc_version = '1.11.2'
+def mc_version = '1.12.1'
 
 ext {
     short_version = getVersion('VERSION', mod_file)
@@ -77,7 +77,7 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = '1.11.2-13.20.1.2386'
+    version = '1.12.1-14.22.1.2479'
     runDir = 'run'
     mappings = 'stable_32'
 //  coreMod = corePlugin
