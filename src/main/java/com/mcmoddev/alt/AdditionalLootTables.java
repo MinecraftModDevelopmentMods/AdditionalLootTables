@@ -27,7 +27,9 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = AdditionalLootTables.MODID, version = AdditionalLootTables.VERSION, name= AdditionalLootTables.NAME)
+@Mod(modid = AdditionalLootTables.MODID, version = AdditionalLootTables.VERSION, name= AdditionalLootTables.NAME,
+     dependencies = "required-after:forge@[14.22.1.2485,)",
+     acceptedMinecraftVersions = "[1.12,)")
 public class AdditionalLootTables {
 	public static final String NAME = "Additional Loot Tables";
 	public static final String MODID = "alt";
