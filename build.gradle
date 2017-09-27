@@ -162,47 +162,47 @@ publishing {
     }
 }
 
-// curseforge {
-//     apiKey = secret.curseforgeAPIKey
-//     project {
-//         id = '243157'
-//         changelog = file('CHANGELOG.txt')
-//         releaseType = 'release'
-//         addGameVersion(project.mc_version)
-//         def projectName = 'Additional Loot Tables'
-//         def displayVersion = getVersion('VERSION', mod_file)
-//         if (System.getenv().BUILD_NUMBER) {
-//             displayVersion += '.' + System.getenv().BUILD_NUMBER
-//         }
-//         mainArtifact(jar) {
-//             displayName = "$project.description $displayVersion"
-// //          relations {
-// //          }
-//         }
-// //        addArtifact(apiJar) {
-// //            displayName = "$project.description $displayVersion API"
-// //        }
-//         addArtifact(sourceJar) {
-//             displayName = "$project.description $displayVersion Sources"
-//         }
-//         addArtifact(deobfJar) {
-//             displayName = "$project.description $displayVersion Development"
-//         }
-//         addArtifact(javadocJar) {
-//             displayName = "$project.description $displayVersion Javadoc"
-//         }
-//     }
-// }
+ curseforge {
+     apiKey = secret.curseforgeAPIKey
+     project {
+         id = '243157'
+         changelog = file('CHANGELOG.txt')
+         releaseType = 'release'
+         addGameVersion(project.mc_version)
+         def projectName = 'Additional Loot Tables'
+         def displayVersion = getVersion('VERSION', mod_file)
+         if (System.getenv().BUILD_NUMBER) {
+             displayVersion += '.' + System.getenv().BUILD_NUMBER
+         }
+         mainArtifact(jar) {
+             displayName = "$project.description $displayVersion"
+ //          relations {
+ //          }
+         }
+ //        addArtifact(apiJar) {
+ //            displayName = "$project.description $displayVersion API"
+ //        }
+         addArtifact(sourceJar) {
+             displayName = "$project.description $displayVersion Sources"
+         }
+         addArtifact(deobfJar) {
+             displayName = "$project.description $displayVersion Development"
+         }
+         addArtifact(javadocJar) {
+             displayName = "$project.description $displayVersion Javadoc"
+         }
+     }
+ }
 
-// sonarqube {
-//     properties {
-//         property 'sonar.host.url', secret.sonarHost
-//         property 'sonar.organization', secret.sonarOrganization
-//         property 'sonar.login', secret.sonarToken
-//         property 'sonar.projectName', project.archivesBaseName
-//         property 'sonar.projectKey', "$project.group:$project.archivesBaseName"
-//     }
-// }
+ sonarqube {
+     properties {
+         property 'sonar.host.url', secret.sonarHost
+         property 'sonar.organization', secret.sonarOrganization
+         property 'sonar.login', secret.sonarToken
+         property 'sonar.projectName', project.archivesBaseName
+         property 'sonar.projectKey', "$project.group:$project.archivesBaseName"
+     }
+ }
 
 String getModFile() {
     String path = ''
