@@ -1,7 +1,5 @@
 package com.mcmoddev.alt;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -15,7 +13,6 @@ import com.mcmoddev.alt.api.PluginLoader;
 import com.mcmoddev.alt.commands.ALTDumpCommand;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -28,7 +25,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
 @Mod(modid = AdditionalLootTables.MODID, version = AdditionalLootTables.VERSION, name= AdditionalLootTables.NAME,
-     dependencies = "required-after:forge@[14.22.1.2485,)",
      acceptedMinecraftVersions = "[1.12,)")
 public class AdditionalLootTables {
 	public static final String NAME = "Additional Loot Tables";
