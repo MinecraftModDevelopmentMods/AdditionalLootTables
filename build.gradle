@@ -19,7 +19,7 @@ buildscript {
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
     }
 }
 
@@ -34,7 +34,7 @@ javadoc {
 
 description = 'Additional Loot Tables'
 def mod_file = getModFile()
-def mc_version = '1.12.1'
+def mc_version = '1.12'
 
 ext {
     short_version = getVersion('VERSION', mod_file)
@@ -73,9 +73,11 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = '1.12.1-14.22.1.2485'
+    version = '1.12.2-14.23.1.2555'
     runDir = 'run'
-    mappings = 'snapshot_20170925'
+    mappings = 'snapshot_20171231'
+
+	replace '@FINGERPRINT@', project.findProperty('signSHA1')
 }
 
 repositories {
@@ -117,6 +119,26 @@ task deobfJar(type: Jar) {
     classifier = 'deobf'
     from sourceSets.main.output
 }
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+
+    // Skips if the keyStore property is missing.
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    // findProperty allows us to reference the property without it existing. 
+    // Using project.propName would cause the script to fail validation if 
+    // the property did not exist. 
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+build.dependsOn signJar
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
