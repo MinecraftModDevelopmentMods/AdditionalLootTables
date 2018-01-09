@@ -39,8 +39,7 @@ public class AdditionalLootTables {
 	public static AdditionalLootTables INSTANCE = null;
 	public static Config config = null;
 	public static Logger logger = LogManager.getFormatterLogger(MODID);
-	public static final String ALTFolderName = "additional-loot-tables";
-	public static String ALTBaseConfigPath = null;
+	public static final String ALT_FOLDER_NAME = "additional-loot-tables";
 	private static Path loot_folder;
     private static final String PROXY_BASE = "com.mcmoddev." + MODID + ".proxy.";
     private static final PluginLoader pluginLoader = new PluginLoader();
@@ -55,8 +54,8 @@ public class AdditionalLootTables {
 
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event) {
-		ALTBaseConfigPath = event.getSuggestedConfigurationFile().getParent();
-		loot_folder = Paths.get(ALTBaseConfigPath,ALTFolderName);
+		final String ALT_BASE_CONFIG_PATH = event.getSuggestedConfigurationFile().getParent();
+		loot_folder = Paths.get(ALT_BASE_CONFIG_PATH, ALT_FOLDER_NAME);
 		config = new Config(event);
 		ALTFileUtils.createDirectoryIfNotPresent(loot_folder);
 		pluginLoader.load(event);
