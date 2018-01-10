@@ -17,7 +17,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.1-SNAPSHOT'
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
         classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
     }
@@ -34,7 +34,7 @@ javadoc {
 
 description = 'Additional Loot Tables'
 def mod_file = getModFile()
-def mc_version = '1.9.4'
+def mc_version = '1.9'
 
 ext {
     short_version = getVersion('VERSION', mod_file)
@@ -73,9 +73,9 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = '1.9.4-12.17.0.1976'
+    version = '1.9-12.16.1.1938-1.9.0'
     runDir = 'run'
-    mappings = 'stable_26'
+    mappings = 'stable_24'
 
 	replace '@FINGERPRINT@', project.findProperty('signSHA1')
 }
