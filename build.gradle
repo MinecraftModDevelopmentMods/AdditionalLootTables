@@ -34,7 +34,7 @@ javadoc {
 
 description = 'Additional Loot Tables'
 def mod_file = getModFile()
-def mc_version = '1.11.2'
+def mc_version = '1.11'
 
 ext {
     short_version = getVersion('VERSION', mod_file)
@@ -73,7 +73,7 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = '1.11.2-13.20.1.2386'
+    version = '1.11-13.19.1.2199'
     runDir = 'run'
     mappings = 'stable_32'
 

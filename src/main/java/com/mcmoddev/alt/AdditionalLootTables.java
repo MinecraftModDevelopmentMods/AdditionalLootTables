@@ -28,7 +28,7 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 @Mod(modid = AdditionalLootTables.MODID,
 	version = AdditionalLootTables.VERSION,
 	name = AdditionalLootTables.NAME,
-	acceptedMinecraftVersions = "[1.11.2,)",
+	acceptedMinecraftVersions = "[1.11,)",
 	certificateFingerprint = "@FINGERPRINT@")
 public class AdditionalLootTables {
 	public static final String NAME = "Additional Loot Tables";
