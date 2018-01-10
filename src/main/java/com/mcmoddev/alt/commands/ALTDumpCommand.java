@@ -27,16 +27,16 @@ public class ALTDumpCommand extends CommandBase {
 
 	@Override
 	public int compareTo(ICommand arg0) {
-		return this.getName().compareTo(arg0.getName());
+		return this.getCommandName().compareTo(arg0.getCommandName());
 	}
 
 	@Override
-	public String getName() {
+	public String getCommandName() {
 		return "alt-dump";
 	}
 
 	@Override
-	public String getUsage(ICommandSender sender) {
+	public String getCommandUsage(ICommandSender sender) {
 		return "/alt-dump";
 	}
 
