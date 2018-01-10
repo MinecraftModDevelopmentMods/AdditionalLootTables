@@ -19,7 +19,7 @@ buildscript {
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
         classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.5'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
     }
 }
 
@@ -73,9 +73,11 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = "1.10.2-12.18.3.2185"
-    runDir = "run"
-    mappings = "stable_29"
+    version = '1.10.2-12.18.3.2185'
+    runDir = 'run'
+    mappings = 'stable_29'
+
+	replace '@FINGERPRINT@', project.findProperty('signSHA1')
 }
 
 repositories {
@@ -117,6 +119,26 @@ task deobfJar(type: Jar) {
     classifier = 'deobf'
     from sourceSets.main.output
 }
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+
+    // Skips if the keyStore property is missing.
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    // findProperty allows us to reference the property without it existing. 
+    // Using project.propName would cause the script to fail validation if 
+    // the property did not exist. 
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+build.dependsOn signJar
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
@@ -162,47 +184,47 @@ publishing {
     }
 }
 
- curseforge {
-     apiKey = secret.curseforgeAPIKey
-     project {
-         id = '243157'
-         changelog = file('CHANGELOG.txt')
-         releaseType = 'release'
-         addGameVersion(project.mc_version)
-         def projectName = 'Additional Loot Tables'
-         def displayVersion = getVersion('VERSION', mod_file)
-         if (System.getenv().BUILD_NUMBER) {
-             displayVersion += '.' + System.getenv().BUILD_NUMBER
-         }
-         mainArtifact(jar) {
-             displayName = "$project.description $displayVersion"
- //          relations {
- //          }
-         }
- //        addArtifact(apiJar) {
- //            displayName = "$project.description $displayVersion API"
- //        }
-         addArtifact(sourceJar) {
-             displayName = "$project.description $displayVersion Sources"
-         }
-         addArtifact(deobfJar) {
-             displayName = "$project.description $displayVersion Development"
-         }
-         addArtifact(javadocJar) {
-             displayName = "$project.description $displayVersion Javadoc"
-         }
-     }
- }
+curseforge {
+    apiKey = secret.curseforgeAPIKey
+    project {
+        id = '243157'
+        changelog = file('CHANGELOG.txt')
+        releaseType = 'release'
+        addGameVersion(project.mc_version)
+        def projectName = 'Additional Loot Tables'
+        def displayVersion = getVersion('VERSION', mod_file)
+        if (System.getenv().BUILD_NUMBER) {
+            displayVersion += '.' + System.getenv().BUILD_NUMBER
+        }
+        mainArtifact(jar) {
+            displayName = "$project.description $displayVersion"
+//          relations {
+//          }
+        }
+//        addArtifact(apiJar) {
+//            displayName = "$project.description $displayVersion API"
+//        }
+        addArtifact(sourceJar) {
+            displayName = "$project.description $displayVersion Sources"
+        }
+        addArtifact(deobfJar) {
+            displayName = "$project.description $displayVersion Development"
+        }
+        addArtifact(javadocJar) {
+            displayName = "$project.description $displayVersion Javadoc"
+        }
+    }
+}
 
- sonarqube {
-     properties {
-         property 'sonar.host.url', secret.sonarHost
-         property 'sonar.organization', secret.sonarOrganization
-         property 'sonar.login', secret.sonarToken
-         property 'sonar.projectName', project.archivesBaseName
-         property 'sonar.projectKey', "$project.group:$project.archivesBaseName"
-     }
- }
+sonarqube {
+    properties {
+        property 'sonar.host.url', secret.sonarHost
+        property 'sonar.organization', secret.sonarOrganization
+        property 'sonar.login', secret.sonarToken
+        property 'sonar.projectName', project.archivesBaseName
+        property 'sonar.projectKey', "$project.group:$project.archivesBaseName"
+    }
+}
 
 String getModFile() {
     String path = ''

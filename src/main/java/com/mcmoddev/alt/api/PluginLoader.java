@@ -31,6 +31,8 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 public class PluginLoader {
 
+	private static final String ALT_VERSION = "ALT Version";
+
 	private class PluginData {
 		private final String modId;
 		private final String resourcePath;
@@ -101,7 +103,7 @@ public class PluginLoader {
 				}
 			} catch( IOException e ) {
 				CrashReport report = CrashReport.makeCrashReport(e, String.format("Failed to get FileSystem for %s", resourceURI.toString()));
-				report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+				report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 				fileSystem = null;
 				myPath = null;
 				AdditionalLootTables.logger.error(report.getCompleteReport());
@@ -136,7 +138,7 @@ public class PluginLoader {
 				walk.close();
 			} catch (IOException e) {
 				CrashReport report = CrashReport.makeCrashReport(e, String.format("Failed to get filesystem iterator for %s", myPath.toString()));
-				report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+				report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 				AdditionalLootTables.logger.error(report.getCompleteReport());
 			} finally {
 				IOUtils.closeQuietly(fileSystem);
@@ -165,7 +167,7 @@ public class PluginLoader {
 							IOUtils.closeQuietly(reader);
 						} catch(IOException ex) {
 							CrashReport report = CrashReport.makeCrashReport(ex, String.format("Failed to copy file %s to %s", next.toUri().toURL().toString(), Paths.get(name).toString()));
-							report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+							report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 							AdditionalLootTables.logger.error(report.getCompleteReport());
 						}
 					}
@@ -174,7 +176,7 @@ public class PluginLoader {
 			walk.close();
 		} catch( IOException e ) {
 			CrashReport report = CrashReport.makeCrashReport(e, String.format("Failed to get filesystem iterator for %s", p.toString()));
-			report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 		}
 	}
@@ -185,7 +187,7 @@ public class PluginLoader {
 			uri = resource.toURI();
 		} catch (URISyntaxException e) {
 			CrashReport report = CrashReport.makeCrashReport(e, String.format("Failed to get URI for %s", loc.toString()));
-			report.getCategory().addCrashSection("ALT Version", AdditionalLootTables.VERSION);
+			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 			return null;
 		}

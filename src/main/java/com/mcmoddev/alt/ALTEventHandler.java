@@ -6,6 +6,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 
 import com.google.common.collect.Queues;
@@ -51,7 +51,7 @@ public class ALTEventHandler {
 					try {
 						File theFile = Paths.get(pos.toString(), filename).toFile();
 						if( !alreadyLoaded.contains(theFile.getCanonicalPath())) {
-							String data = FileUtils.readFileToString(theFile, Charsets.UTF_8);
+							String data = FileUtils.readFileToString(theFile, Charset.forName("UTF-8"));
 							JsonElement baseParse = parser.parse(data);
 							if( baseParse.isJsonObject() && !baseParse.isJsonNull()) {
 								JsonObject root = baseParse.getAsJsonObject();
@@ -142,8 +142,8 @@ public class ALTEventHandler {
 
 	private static Object hackNewLootTableContext(ResourceLocation rsrc, boolean isCustom) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-		Class ctxClass = Class.forName(className_LootTableContext);
-		Constructor constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
+		Class<?> ctxClass = Class.forName(className_LootTableContext);
+		Constructor<?> constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
 		constructor.setAccessible(true);
 		return constructor.newInstance(rsrc,isCustom);
 	}
