@@ -11,7 +11,7 @@ public class ServerProxy extends CommonProxy {
     public World getWorld() {
 		MinecraftServer mcServer = FMLServerHandler.instance().getServer();
 		
-		if( mcServer.worlds.length == 0 ) {
+		if( mcServer.worldServers.length == 0 ) {
 			AdditionalLootTables.logger.warn("No World Ready Yet!");
 			return null;
 		} else {

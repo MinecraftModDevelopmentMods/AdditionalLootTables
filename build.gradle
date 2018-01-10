@@ -34,7 +34,7 @@ javadoc {
 
 description = 'Additional Loot Tables'
 def mod_file = getModFile()
-def mc_version = '1.10.2'
+def mc_version = '1.10'
 
 ext {
     short_version = getVersion('VERSION', mod_file)
@@ -73,9 +73,9 @@ if (secretFile.exists()) {
 }
 
 minecraft {
-    version = '1.10.2-12.18.3.2185'
+    version = '1.10-12.18.0.2000-1.10.0'
     runDir = 'run'
-    mappings = 'stable_29'
+    mappings = 'stable_26'
 
 	replace '@FINGERPRINT@', project.findProperty('signSHA1')
 }

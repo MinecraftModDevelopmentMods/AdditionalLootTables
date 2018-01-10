@@ -12,7 +12,7 @@ public class ClientProxy extends CommonProxy {
 		if( mc.isIntegratedServerRunning() ) {
 			return mc.getIntegratedServer().getEntityWorld();
 		} else {
-			return mc.world;
+			return mc.theWorld;
 		}
     }
 
