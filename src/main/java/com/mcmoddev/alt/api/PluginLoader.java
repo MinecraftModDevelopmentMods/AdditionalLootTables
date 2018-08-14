@@ -180,7 +180,9 @@ public class PluginLoader {
 			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 		} finally {
-			walk.close();
+			if (walk != null) {
+				walk.close();
+			}
 		}
 	}
 	
