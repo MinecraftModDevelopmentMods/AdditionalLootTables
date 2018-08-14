@@ -45,22 +45,22 @@ public class PluginLoader {
 		String getModId() {
 			return this.modId;
 		}
-		
+
 		String getResourcePath() {
 			return this.resourcePath;
 		}
-		
+
 		String getCompletePath() {
 			return String.format("assets/%s/%s", this.modId, this.resourcePath);
 		}
-		
+
 		ResourceLocation getResourceLocation() {
 			return new ResourceLocation(this.modId, this.resourcePath);
 		}
 	}
-	
+
 	private List<PluginData> dataStore = new ArrayList<>();
-	
+
 	private String getAnnotationItem(String item, final ASMData asmData) {
 		if (asmData.getAnnotationInfo().get(item) != null) {
 			return asmData.getAnnotationInfo().get(item).toString();
@@ -147,8 +147,9 @@ public class PluginLoader {
 	}
 
 	private void copyConfigFiles(Path p, String tName) {
+		Stream<Path> walk = null;
 		try {
-			Stream<Path> walk = Files.walk(p, 1);			
+			walk = Files.walk(p, 1);			
 			if( walk == null ) {
 				return;
 			}
@@ -178,6 +179,8 @@ public class PluginLoader {
 			CrashReport report = CrashReport.makeCrashReport(e, String.format("Failed to get filesystem iterator for %s", p.toString()));
 			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
+		} finally {
+			walk.close();
 		}
 	}
 	

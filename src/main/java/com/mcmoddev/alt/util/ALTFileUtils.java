@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -125,30 +126,34 @@ public class ALTFileUtils {
 	}
 
 	public static void copyFromResourceIfNotPresent(ResourceLocation value) {
-		Path base = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getResourceDomain()).normalize();
+		Path base = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getNamespace()).normalize();
 		createDirectoryIfNotPresent( base );
-		ModContainer modContainer = Loader.instance().getIndexedModList().get(value.getResourceDomain());
+		ModContainer modContainer = Loader.instance().getIndexedModList().get(value.getNamespace());
 		if( modContainer == null ) {
 			AdditionalLootTables.logger.error("Unable to get mod container for mod {} - possible malformed ResourceLocation? ({})",
-					value.getResourceDomain(), value.toString());
+					value.getNamespace(), value.toString());
 			return;
 		}
 		File container = modContainer.getSource();
-		Path root = container.toPath().resolve(Paths.get("assets", value.getResourceDomain(), value.getResourcePath()));
+		Path root = container.toPath().resolve(Paths.get("assets", value.getNamespace(), value.getPath()));
 		
 		if( !root.toFile().isDirectory() ) {
-			AdditionalLootTables.logger.error("Mod {} asked us to load from {} but it is not a directory!", value.getResourceDomain(), root.toString());
+			AdditionalLootTables.logger.error("Mod {} asked us to load from {} but it is not a directory!", value.getNamespace(), root.toString());
 			return;
 		}
-		
-		
+
 		Iterator<Path> itr = null;
-			
+		Stream<Path> stream = null;
 		try {
-			itr = Files.walk(root).iterator();				
+			stream = Files.walk(root);
+			itr = stream.iterator();				
 		} catch( IOException e) {
-			AdditionalLootTables.logger.error("Getting iterator for resource of mod {}", value.getResourceDomain(), e);
+			AdditionalLootTables.logger.error("Getting iterator for resource of mod {}", value.getNamespace(), e);
 			return;
+		} finally {
+			if (stream != null) {
+				stream.close();
+			}
 		}
 		
 		while( itr != null && itr.hasNext() ) {
@@ -165,12 +170,18 @@ public class ALTFileUtils {
 
 	public static void copyFiles(Path sourceDir, Path targetDir) {
 		Iterator<Path> itr = null;
+		Stream<Path> stream = null;
 
 		try {
-			itr = Files.walk(sourceDir).iterator();
+			stream = Files.walk(sourceDir);
+			itr = stream.iterator();
 		} catch( IOException e ) {
 			AdditionalLootTables.logger.error("Unable to get iterator for {}", sourceDir, e);
 			return;
+		} finally {
+			if (stream != null) {
+				stream.close();
+			}
 		}
 
 		while( itr != null && itr.hasNext() ) {

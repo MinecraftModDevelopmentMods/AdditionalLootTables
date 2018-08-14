@@ -53,8 +53,8 @@ public class ALTDumpCommand extends CommandBase {
 		LootTableManager manager = w.getLootTableManager();
 		LootTableList.getAll().forEach( resLoc -> {
 			LootTable table = manager.getLootTableFromLocation(resLoc);
-			String dirName = resLoc.getResourceDomain();
-			String fileName = String.format("%s.json", resLoc.getResourcePath());
+			String dirName = resLoc.getNamespace();
+			String fileName = String.format("%s.json", resLoc.getPath());
 			File f = Paths.get(AdditionalLootTables.getLootFolder().toString()+"-dumps",dirName,fileName).toFile();
 			
 			try {
