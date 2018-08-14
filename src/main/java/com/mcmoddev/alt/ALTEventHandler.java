@@ -1,5 +1,7 @@
 package com.mcmoddev.alt;
 
+import static com.mcmoddev.alt.data.Constants.GSON;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -8,11 +10,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.FileUtils;
 
@@ -30,8 +34,6 @@ import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.mcmoddev.alt.data.Constants.GSON;
-
 public class ALTEventHandler {
 
 	private static JsonParser parser = new JsonParser();
@@ -42,9 +44,11 @@ public class ALTEventHandler {
 	public static void lootLoad(LootTableLoadEvent evt) {
 		if (evt.getName().toString().startsWith("minecraft:")) {
 			String filename = String.format("%s.json", evt.getName().toString().split(":")[1]);
-
+			Stream<Path> stream = null;
 			try {
-				Files.list(Paths.get(AdditionalLootTables.getLootFolder().toString()))
+				stream = Files.list(Paths.get(AdditionalLootTables.getLootFolder().toString()));
+
+				stream
 				.filter( pos -> pos.toFile().isDirectory() )
 				.filter( pos -> Paths.get(pos.toString(), filename).toFile().exists() )
 				.forEach( pos -> {
@@ -83,6 +87,10 @@ public class ALTEventHandler {
 				});
 			} catch(IOException e) {
 				AdditionalLootTables.logger.fatal("Exception in finding potential added loot tables: %s", e.toString());
+			} finally {
+				if (stream != null) {
+					stream.close();
+				}
 			}
 		}
 	}

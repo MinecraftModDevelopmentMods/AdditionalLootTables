@@ -2,6 +2,7 @@ package com.mcmoddev.alt.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
@@ -68,7 +69,7 @@ public class ALTDumpCommand extends CommandBase {
 
 				String basic = GSON.toJson(table);
 				String prettified = prettyPrinter.toJson(parser.parse(basic));
-				FileUtils.writeStringToFile(f, prettified);
+				FileUtils.writeStringToFile(f, prettified, Charset.defaultCharset(), false);
 			} catch( IOException e ) {
 				AdditionalLootTables.logger.error("Error writing loot table %s : %s", f.getPath(), e.getMessage());
 			}

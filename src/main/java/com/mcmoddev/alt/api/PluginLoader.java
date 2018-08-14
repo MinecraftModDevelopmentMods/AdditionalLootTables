@@ -123,8 +123,8 @@ public class PluginLoader {
 				
 				for( Iterator<Path> iter = walk.iterator(); iter.hasNext(); ) {
 					Path p = iter.next();
-					
-					if( Files.isDirectory(p) && !topDir) {
+
+					if((p.toFile().isDirectory()) && !topDir) {
 						tName = Paths.get(AdditionalLootTables.getLootFolder().toString(), 
 								pd.getModId(), p.getFileName().toString()).toString();
 						ALTFileUtils.createDirectoryIfNotPresent( Paths.get(tName) );
@@ -149,10 +149,7 @@ public class PluginLoader {
 	private void copyConfigFiles(Path p, String tName) {
 		Stream<Path> walk = null;
 		try {
-			walk = Files.walk(p, 1);			
-			if( walk == null ) {
-				return;
-			}
+			walk = Files.walk(p, 1);
 
 			for( Iterator<Path> iter = walk.iterator(); iter.hasNext(); ) {
 				Path next = iter.next();

@@ -111,7 +111,7 @@ public class ALTFileUtils {
 
 	public static void safeDelete(File file) {
 		try {
-			file.delete();
+			Files.delete(file.toPath());
 		} catch (Exception e) {
 			AdditionalLootTables.logger.error("Deleting file " + file.getAbsolutePath() + " failed.");
 		}
@@ -149,7 +149,6 @@ public class ALTFileUtils {
 			itr = stream.iterator();				
 		} catch( IOException e) {
 			AdditionalLootTables.logger.error("Getting iterator for resource of mod {}", value.getNamespace(), e);
-			return;
 		} finally {
 			if (stream != null) {
 				stream.close();
@@ -177,7 +176,6 @@ public class ALTFileUtils {
 			itr = stream.iterator();
 		} catch( IOException e ) {
 			AdditionalLootTables.logger.error("Unable to get iterator for {}", sourceDir, e);
-			return;
 		} finally {
 			if (stream != null) {
 				stream.close();
@@ -198,16 +196,13 @@ public class ALTFileUtils {
 						copy(current.toFile(), out);
 					} catch (FileNotFoundException e) {
 						AdditionalLootTables.logger.error("Unable to create output stream for {}", Paths.get(targetDir.toAbsolutePath().toString(), current.toFile().getName()).toAbsolutePath().toString(), e);					
-						return;
 					} catch (IOException e) {
 						AdditionalLootTables.logger.error("Error copying config over", e);					
-						return;					
 					} finally {
 						try {
 							if( out != null ) out.close();
 						} catch(IOException e) {
 							AdditionalLootTables.logger.error("Unable to close output stream", e);					
-							return;
 						}
 					}
 				}
