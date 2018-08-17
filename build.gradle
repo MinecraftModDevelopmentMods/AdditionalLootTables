@@ -18,8 +18,8 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.9'
-        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.1'
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.0.11'
+        classpath 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.6.2'
     }
 }
 
@@ -45,7 +45,6 @@ if (System.getenv().BUILD_NUMBER) {
     version += '.' + System.getenv().BUILD_NUMBER
 }
 group = 'com.mcmoddev'
-archivesBaseName = 'AdditionalLootTables'
 sourceCompatibility = targetCompatibility = '1.8'
 
 class Secrets {
@@ -75,7 +74,7 @@ if (secretFile.exists()) {
 minecraft {
     version = '1.12.2-14.23.4.2705'
     runDir = 'run'
-    mappings = 'snapshot_20180716'
+    mappings = 'stable_39'
 
 	replace '@FINGERPRINT@', project.findProperty('signSHA1')
 }
