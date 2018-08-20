@@ -40,7 +40,7 @@ public class AdditionalLootTables {
 	public static Config config = null;
 	public static Logger logger = LogManager.getFormatterLogger(MODID);
 	public static final String ALT_FOLDER_NAME = "additional-loot-tables";
-	private static Path loot_folder;
+	private static Path lootFolder;
     private static final String PROXY_BASE = "com.mcmoddev." + MODID + ".proxy.";
     private static final PluginLoader pluginLoader = new PluginLoader();
     
@@ -55,9 +55,9 @@ public class AdditionalLootTables {
 	@EventHandler
 	public static void preInit(FMLPreInitializationEvent event) {
 		final String ALT_BASE_CONFIG_PATH = event.getSuggestedConfigurationFile().getParent();
-		loot_folder = Paths.get(ALT_BASE_CONFIG_PATH, ALT_FOLDER_NAME);
+		lootFolder = Paths.get(ALT_BASE_CONFIG_PATH, ALT_FOLDER_NAME);
 		config = new Config(event);
-		ALTFileUtils.createDirectoryIfNotPresent(loot_folder);
+		ALTFileUtils.createDirectoryIfNotPresent(lootFolder);
 		pluginLoader.load(event);
 		MinecraftForge.EVENT_BUS.register(ALTEventHandler.class);
 	}
@@ -85,12 +85,12 @@ public class AdditionalLootTables {
         event.getMessages().stream().filter(message -> message.key.equalsIgnoreCase("register"))
         .forEach(message -> {
             ResourceLocation value = message.getResourceLocationValue();
-            ALTFileUtils.copyFromResourceIfNotPresent(value);
+            ALTFileUtils.copyFromResourceIfNotPresentFixed(value);
         });
     }
     
 	public static Path getLootFolder() {
-		return loot_folder;
+		return lootFolder;
 	}
 
 }
