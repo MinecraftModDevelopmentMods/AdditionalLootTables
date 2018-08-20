@@ -95,9 +95,9 @@ public class ALTEventHandler {
 		}
 	}
 
-	private static final String className_LootTableContext = ForgeHooks.class.getCanonicalName()+"$LootTableContext";
-	private static final String fieldName_lootContext = "lootContext";
-	private static final String fieldName_EVENT_BUS = "EVENT_BUS";
+	private static final String LOOT_TABLE_CONTEXT = ForgeHooks.class.getCanonicalName()+"$LootTableContext";
+	private static final String LOOT_CONTEXT = "lootContext";
+	private static final String EVENT_BUS_FIELD_NAME = "EVENT_BUS";
 
 	private static final void removeFinalModifierFromField(Field f) throws NoSuchFieldException, IllegalAccessException {
 		// Warning: invoking shadow magic
@@ -110,7 +110,7 @@ public class ALTEventHandler {
 
 	private static Object hackDisableEventBus() throws NoSuchFieldException, IllegalAccessException {
 		Object cache = MinecraftForge.EVENT_BUS;
-		Field busField = MinecraftForge.class.getDeclaredField(fieldName_EVENT_BUS);
+		Field busField = MinecraftForge.class.getDeclaredField(EVENT_BUS_FIELD_NAME);
 		busField.setAccessible(true);
 		removeFinalModifierFromField(busField);
 		busField.set(null,new EventBus());
@@ -119,7 +119,7 @@ public class ALTEventHandler {
 	}
 
 	private static void hackEnableEventBus(Object cache) throws NoSuchFieldException, IllegalAccessException {
-		Field busField = MinecraftForge.class.getDeclaredField(fieldName_EVENT_BUS);
+		Field busField = MinecraftForge.class.getDeclaredField(EVENT_BUS_FIELD_NAME);
 		busField.setAccessible(true);
 		removeFinalModifierFromField(busField);
 		busField.set(null,cache);
@@ -143,14 +143,14 @@ public class ALTEventHandler {
 	}
 
 	private static ThreadLocal<Deque> hackLootTableContextDeque() throws IllegalAccessException, NoSuchFieldException {
-		Field variable = ForgeHooks.class.getDeclaredField(fieldName_lootContext);
+		Field variable = ForgeHooks.class.getDeclaredField(LOOT_CONTEXT);
 		variable.setAccessible(true);
 		return (ThreadLocal<Deque>) variable.get(null);
 	}
 
 	private static Object hackNewLootTableContext(ResourceLocation rsrc, boolean isCustom) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
 
-		Class<?> ctxClass = Class.forName(className_LootTableContext);
+		Class<?> ctxClass = Class.forName(LOOT_TABLE_CONTEXT);
 		Constructor<?> constructor = ctxClass.getDeclaredConstructor(ResourceLocation.class, boolean.class);
 		constructor.setAccessible(true);
 		return constructor.newInstance(rsrc,isCustom);
