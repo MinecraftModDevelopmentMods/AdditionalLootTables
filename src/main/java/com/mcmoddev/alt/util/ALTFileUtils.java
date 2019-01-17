@@ -66,7 +66,7 @@ public class ALTFileUtils {
 			while (entries.hasMoreElements()) {
 				JarEntry entry = entries.nextElement();
 				String entryName = entry.getName();
-				String cpn = corePath.toString().replaceAll("\\", "/");
+				String cpn = corePath.toString().replaceAll("\\\\", "/");
 				String actName = entryName.substring(0, cpn.length());
 				if(Paths.get(entryName).startsWith(corePath)) {
 					if(entry.isDirectory() && actName.trim().length() != 0) {
