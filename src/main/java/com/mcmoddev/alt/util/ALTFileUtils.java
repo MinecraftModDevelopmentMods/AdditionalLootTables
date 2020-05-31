@@ -15,8 +15,8 @@ import com.mcmoddev.alt.AdditionalLootTables;
 
 import net.minecraft.crash.CrashReport;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
 
 public class ALTFileUtils {
 	private static final String ALT_VERSION = "ALT Version";
@@ -33,7 +33,7 @@ public class ALTFileUtils {
 		outputPath = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getNamespace());
 		createDirectoryIfNotPresent(outputPath); // directory must exist if we're going to copy stuff into it and all that
 		
-		modContainer = Loader.instance().getIndexedModList().get(value.getNamespace());
+		modContainer = ModList.get().getModContainerById(value.getNamespace()).orElse(null);
 		if (modContainer == null) {
 			AdditionalLootTables.logger.error("Unable to get Mod Container for mod {}", value.getNamespace());
 			return;
@@ -55,7 +55,7 @@ public class ALTFileUtils {
 			tryCopy(urlcon, bit, corePath);
 		} catch (IOException e2) {
 			CrashReport report = CrashReport.makeCrashReport(e2, String.format("jarURLConnection for %s failed to open", bit.toString()));
-			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
+			report.getCategory().addDetail(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 		}
 	}
@@ -78,7 +78,7 @@ public class ALTFileUtils {
 			}
 		} catch (IOException e1) {
 			CrashReport report = CrashReport.makeCrashReport(e1, String.format("jarURLConnection for %s failed to return a JarFile", bit.toString()));
-			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
+			report.getCategory().addDetail(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 		}
 	}
@@ -89,14 +89,14 @@ public class ALTFileUtils {
 		} catch (IOException e) {
 			CrashReport report = CrashReport.makeCrashReport(e, String.format("Files.copy(%s, %s) failed", 
 					name, targetPath));
-			report.getCategory().addCrashSection(ALT_VERSION, AdditionalLootTables.VERSION);
+			report.getCategory().addDetail(ALT_VERSION, AdditionalLootTables.VERSION);
 			AdditionalLootTables.logger.error(report.getCompleteReport());
 		}
 	}
 	
 	public static void createDirectoryIfNotPresent(Path lootFolder) {
-		if(lootFolder.toFile().exists()) return;
-		lootFolder.toFile().mkdir();
+		if(!lootFolder.toFile().exists())
+			lootFolder.toFile().mkdir();
 	}
 	
 }

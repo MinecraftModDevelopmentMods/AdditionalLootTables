@@ -6,11 +6,9 @@ import java.util.List;
 import com.mcmoddev.alt.util.ALTFileUtils;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.ModList;
 
 public class PluginLoader {
-
 	private class PluginData {
 		private final String modId;
 		private final String resourcePath;
@@ -37,31 +35,23 @@ public class PluginLoader {
 		}
 	}
 
-	private List<PluginData> dataStore = new ArrayList<>();
+	private final List<PluginData> dataStore = new ArrayList<>();
 
-	private String getAnnotationItem(String item, final ASMData asmData) {
-		if (asmData.getAnnotationInfo().get(item) != null) {
-			return asmData.getAnnotationInfo().get(item).toString();
-		} else {
-			if( "resourcePath".equals(item) ) {
-				// for some reason the default value is never presevered
-				return "alt";
-			} else {
-				return "";
+	public void load() {	
+		ModList.get().forEachModContainer((modid, container) -> {
+			Object modInstance = container.getMod();
+			Class<?> modClass = modInstance.getClass();
+			ALTPlugin annotation = modClass.getAnnotation(ALTPlugin.class);
+			if (annotation != null) {
+				final String modId = annotation.modid();
+				final String resourceBase = annotation.resourcePath();
+				PluginData pd = new PluginData( modId, resourceBase);
+				dataStore.add(pd);
 			}
-		}
-	}
-
-	public void load(FMLPreInitializationEvent event) {
-		for (final ASMData asmDataItem : event.getAsmData().getAll(ALTPlugin.class.getCanonicalName())) {
-			final String modId = getAnnotationItem("modid", asmDataItem);
-			final String resourceBase = getAnnotationItem("resourcePath", asmDataItem);
-			PluginData pd = new PluginData( modId, resourceBase);
-			dataStore.add(pd);
-		}
+		});
 	}
 
 	public void loadResources() {
-		dataStore.stream().forEach(pd -> ALTFileUtils.copyFromResourceIfNotPresent(pd.getResourceLocation(), pd.getResourcePath()));
+		dataStore.forEach(pd -> ALTFileUtils.copyFromResourceIfNotPresent(pd.getResourceLocation(), pd.getResourcePath()));
 	}
 }

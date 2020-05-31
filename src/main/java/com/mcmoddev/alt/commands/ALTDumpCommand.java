@@ -10,49 +10,38 @@ import org.apache.commons.io.FileUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
+import com.mcmoddev.alt.ALTEventHandler;
 import com.mcmoddev.alt.AdditionalLootTables;
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
-import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommand;
-import net.minecraft.command.ICommandSender;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.world.World;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.Commands;
 import net.minecraft.world.storage.loot.LootTable;
-import net.minecraft.world.storage.loot.LootTableList;
 import net.minecraft.world.storage.loot.LootTableManager;
 
-import static com.mcmoddev.alt.data.Constants.GSON;
-
-public class ALTDumpCommand extends CommandBase {
-
-	@Override
-	public int compareTo(ICommand arg0) {
-		return this.getName().compareTo(arg0.getName());
-	}
-
-	@Override
-	public String getName() {
-		return "alt-dump";
-	}
-
-	@Override
-	public String getUsage(ICommandSender sender) {
-		return "/alt-dump";
-	}
-
-	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		World w = AdditionalLootTables.proxy.getWorld();
+public class ALTDumpCommand {
+	public static void register(CommandDispatcher<CommandSource> dispatcher) {
+		LiteralArgumentBuilder<CommandSource> literalargumentbuilder = Commands.literal("alt-dump")
+				.requires(source -> source.hasPermissionLevel(2))
+				.executes(context -> execute(context.getSource()));
 		
-		if( w.isRemote ) {
-			return;
+		dispatcher.register(literalargumentbuilder);
+	}
+
+	public static int execute(CommandSource sender) throws CommandException {
+		if(sender.getWorld().isRemote) {
+			// The execution should only happen on the logical server side
+			return 0;
 		}
 
 		Gson prettyPrinter = new GsonBuilder().setPrettyPrinting().create();
 		JsonParser parser = new JsonParser();
-		LootTableManager manager = w.getLootTableManager();
-		LootTableList.getAll().forEach( resLoc -> {
+
+		LootTableManager manager = sender.getServer().getLootTableManager();
+		manager.getLootTableKeys().forEach( resLoc -> {
 			LootTable table = manager.getLootTableFromLocation(resLoc);
 			String dirName = resLoc.getNamespace();
 			String fileName = String.format("%s.json", resLoc.getPath());
@@ -67,12 +56,14 @@ public class ALTDumpCommand extends CommandBase {
 					f.createNewFile();
 				}
 
-				String basic = GSON.toJson(table);
+				String basic = ALTEventHandler.GSON.getValue().toJson(table);
 				String prettified = prettyPrinter.toJson(parser.parse(basic));
 				FileUtils.writeStringToFile(f, prettified, Charset.defaultCharset(), false);
 			} catch( IOException e ) {
 				AdditionalLootTables.logger.error("Error writing loot table %s : %s", f.getPath(), e.getMessage());
 			}
 		});
+		
+		return Command.SINGLE_SUCCESS;
 	}
 }
