@@ -78,7 +78,7 @@ public class AdditionalLootTables {
 	        .forEach(message -> {
 	        	Object value = message.getMessageSupplier().get();
 	        	if (value instanceof ResourceLocation) {
-		            ALTFileUtils.copyFromResourceIfNotPresentFixed((ResourceLocation) value);
+		            ALTFileUtils.copyFromResourceIfNotPresent((ResourceLocation) value);
 	        	}
 	        });
 	    }

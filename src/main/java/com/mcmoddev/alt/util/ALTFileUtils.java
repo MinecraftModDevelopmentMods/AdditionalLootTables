@@ -20,26 +20,25 @@ import net.minecraftforge.fml.ModList;
 
 public class ALTFileUtils {
 	private static final String ALT_VERSION = "ALT Version";
-
-	public static void copyFromResourceIfNotPresentFixed(ResourceLocation value) {
-		copyFromResourceIfNotPresent(value, "alt");
-	}
 	
-	public static void copyFromResourceIfNotPresent(ResourceLocation value, String modDir) {
+	public static void copyFromResourceIfNotPresent(ResourceLocation value) {
+		String modId = value.getNamespace();
+		String theDir = value.getPath();
+
 		Path outputPath;             // base path for the output
 		ModContainer modContainer;   // mod container of mod we need to copy from
 		
 		// loot folder + modid == path
-		outputPath = Paths.get(AdditionalLootTables.getLootFolder().toString(), value.getNamespace());
+		outputPath = Paths.get(AdditionalLootTables.getLootFolder().toString(), modId);
 		createDirectoryIfNotPresent(outputPath); // directory must exist if we're going to copy stuff into it and all that
 		
-		modContainer = ModList.get().getModContainerById(value.getNamespace()).orElse(null);
+		modContainer = ModList.get().getModContainerById(modId).orElse(null);
 		if (modContainer == null) {
-			AdditionalLootTables.logger.error("Unable to get Mod Container for mod {}", value.getNamespace());
+			AdditionalLootTables.logger.error("Unable to get Mod Container for mod {}", modId);
 			return;
 		}
 		
-		Path corePath = Paths.get("assets", value.getNamespace(), modDir);
+		Path corePath = Paths.get("assets", modId, theDir);
 		
 		// walk the specified mods resources, find the json's we're looking for
 		// replicate the directory tree and copy out the mods
