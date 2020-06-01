@@ -1,6 +1,5 @@
 package com.mcmoddev.alt;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -17,7 +16,6 @@ import com.mcmoddev.alt.commands.ALTDumpCommand;
 
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -46,12 +44,13 @@ public class AdditionalLootTables {
 		if (INSTANCE == null)
 			INSTANCE = this;
 		else
-			throw new RuntimeException("Duplicated Class Instantiation: CustomItems");
+			throw new RuntimeException("Duplicated Class Instantiation: AdditionalLootTables");
 		
 		config = Config.construct();
-		
 		lootFolder = Paths.get(FMLPaths.CONFIGDIR.get().toString(), ALT_FOLDER_NAME);
 		ALTFileUtils.createDirectoryIfNotPresent(lootFolder);
+		
+		pluginLoader.load();
 	}
     
     // TODO: Fix fingerprint detection, FMLFingerprintViolationEvent is not fired anywhere in FML/Forge!
@@ -61,12 +60,7 @@ public class AdditionalLootTables {
 //	}
     
 	@Mod.EventBusSubscriber(modid = AdditionalLootTables.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
-	public static class ModEventHandler {
-    	@SubscribeEvent
-    	public static void newRegistry(RegistryEvent.NewRegistry event) throws IOException {
-    		pluginLoader.load();
-    	}
-		
+	public static class ModEventHandler {		
 		@SubscribeEvent
 		public static void onCommonSetup(FMLCommonSetupEvent event) {
 			pluginLoader.loadResources();
