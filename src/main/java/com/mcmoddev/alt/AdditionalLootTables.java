@@ -65,15 +65,21 @@ public class AdditionalLootTables {
 		public static void onCommonSetup(FMLCommonSetupEvent event) {
 			pluginLoader.loadResources();
 		}
-		
-		// TODO: fix inter-mod communication
+
+		// TODO: check and test inter-mod communication
 		@SubscribeEvent
-	    public void onIMC(InterModProcessEvent event) {
+	    public void onIMCProcess(InterModProcessEvent event) {
+			/*
+			 * Enqueue an IMC named "register" and the resource location with your MODID as domain name
+			 * net.minecraftforge.fml.InterModComms.sendTo(Your_MODID, "register", ()->new ResourceLocation(Your_MODID, "anything"));
+			 */
 	    	event.getIMCStream()
-//	    	.filter(message -> message.getMethod().equalsIgnoreCase("register"))
+	    	.filter(message -> message.getMethod().equalsIgnoreCase("register"))
 	        .forEach(message -> {
-//	            ResourceLocation value = message.getResourceLocationValue();
-//	            ALTFileUtils.copyFromResourceIfNotPresentFixed(value);
+	        	Object value = message.getMessageSupplier().get();
+	        	if (value instanceof ResourceLocation) {
+		            ALTFileUtils.copyFromResourceIfNotPresentFixed((ResourceLocation) value);
+	        	}
 	        });
 	    }
 	}
