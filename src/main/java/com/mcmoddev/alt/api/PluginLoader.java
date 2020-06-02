@@ -1,67 +1,36 @@
 package com.mcmoddev.alt.api;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import org.objectweb.asm.Type;
 
 import com.mcmoddev.alt.util.ALTFileUtils;
 
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.discovery.ASMDataTable.ASMData;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.forgespi.language.ModFileScanData;
 
 public class PluginLoader {
+	private final List<ResourceLocation> dataStore = new ArrayList<>();
 
-	private class PluginData {
-		private final String modId;
-		private final String resourcePath;
-		
-		PluginData( String modId, String resourcePath ) {
-			this.modId = modId;
-			this.resourcePath = resourcePath;
-		}
-		
-		String getModId() {
-			return this.modId;
-		}
-
-		String getResourcePath() {
-			return this.resourcePath;
-		}
-
-		String getCompletePath() {
-			return String.format("assets/%s/%s", this.modId, this.resourcePath);
-		}
-
-		ResourceLocation getResourceLocation() {
-			return new ResourceLocation(this.modId, this.resourcePath);
-		}
-	}
-
-	private List<PluginData> dataStore = new ArrayList<>();
-
-	private String getAnnotationItem(String item, final ASMData asmData) {
-		if (asmData.getAnnotationInfo().get(item) != null) {
-			return asmData.getAnnotationInfo().get(item).toString();
-		} else {
-			if( "resourcePath".equals(item) ) {
-				// for some reason the default value is never presevered
-				return "alt";
-			} else {
-				return "";
-			}
-		}
-	}
-
-	public void load(FMLPreInitializationEvent event) {
-		for (final ASMData asmDataItem : event.getAsmData().getAll(ALTPlugin.class.getCanonicalName())) {
-			final String modId = getAnnotationItem("modid", asmDataItem);
-			final String resourceBase = getAnnotationItem("resourcePath", asmDataItem);
-			PluginData pd = new PluginData( modId, resourceBase);
-			dataStore.add(pd);
-		}
+	public void load() {
+		Type altplugin = Type.getType(ALTPlugin.class);
+        ModList.get().getAllScanData().stream()
+                .map(ModFileScanData::getAnnotations)
+                .flatMap(Collection::stream)
+                .filter(annoData -> altplugin.equals(annoData.getAnnotationType()))
+                .forEach(annoData -> {
+                	Map<String,Object> data = annoData.getAnnotationData();
+    				final String modId = (String) data.get("modid");
+    				final String resourceBase = (String) data.get("resourcePath");
+    				dataStore.add(new ResourceLocation(modId, resourceBase));
+                });
 	}
 
 	public void loadResources() {
-		dataStore.stream().forEach(pd -> ALTFileUtils.copyFromResourceIfNotPresent(pd.getResourceLocation(), pd.getResourcePath()));
+		dataStore.forEach(resLoc -> ALTFileUtils.copyFromResourceIfNotPresent(resLoc));
 	}
 }

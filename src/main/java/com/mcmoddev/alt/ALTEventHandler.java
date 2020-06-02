@@ -1,6 +1,6 @@
 package com.mcmoddev.alt;
 
-import static com.mcmoddev.alt.data.Constants.GSON;
+//import static com.mcmoddev.alt.data.Constants.GSON;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,32 +21,40 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 
 import com.google.common.collect.Queues;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import net.minecraft.util.LazyValue;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootPool;
+import net.minecraft.world.storage.loot.LootTableManager;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.LootTableLoadEvent;
-import net.minecraftforge.fml.common.eventhandler.EventBus;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.eventbus.EventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class ALTEventHandler {
-
+	public static final LazyValue<Gson> GSON = new LazyValue<>(
+			()->ObfuscationReflectionHelper.getPrivateValue(LootTableManager.class, null, "field_186526_b")
+			);
 	private static JsonParser parser = new JsonParser();
 	private static final AtomicInteger hashCounter = new AtomicInteger(0);
 	private static final List<String> alreadyLoaded = new ArrayList<>();
 	
-	@SubscribeEvent
 	public static void lootLoad(LootTableLoadEvent evt) {
+
+		
 		if (evt.getName().toString().startsWith("minecraft:")) {
 			String filename = String.format("%s.json", evt.getName().toString().split(":")[1]);
 			Stream<Path> stream = null;
 			try {
-				stream = Files.list(Paths.get(AdditionalLootTables.getLootFolder().toString()));
+				Path p = Paths.get(AdditionalLootTables.getLootFolder().toString());
+				stream = Files.list(p);
 
 				stream
 				.filter( pos -> pos.toFile().isDirectory() )
@@ -62,8 +70,8 @@ public class ALTEventHandler {
 								JsonArray pools = root.get("pools").getAsJsonArray();
 								for( int i = 0; i < pools.size(); i++ ) {
 									JsonElement pool = pools.get(i);
-									Object busCache;
-									busCache = hackDisableEventBus();
+									// TODO: We may not have to disable the event bus
+//									Object busCache = hackDisableEventBus();
 									String category = evt.getName().toString().split(":")[1].split("/")[0];
 									String entry = evt.getName().toString().split(":")[1].split("/")[1]; 
 									pushLootTableContext(category,entry);
@@ -71,12 +79,12 @@ public class ALTEventHandler {
 									JsonObject work = pool.getAsJsonObject();
 									work.addProperty("name", String.format("_entry_%d", hashCounter.incrementAndGet()));
 
-									LootPool thePool = GSON.fromJson(GSON.toJson(work), LootPool.class);
+									LootPool thePool = GSON.getValue().fromJson(GSON.getValue().toJson(work), LootPool.class);
 									if( thePool != null ) {
 										evt.getTable().addPool(thePool);
 									}
 									popLootTableContext();
-									hackEnableEventBus(busCache);
+//									hackEnableEventBus(busCache);
 								}
 							}
 							alreadyLoaded.add(theFile.getCanonicalPath());
@@ -93,6 +101,11 @@ public class ALTEventHandler {
 				}
 			}
 		}
+	}
+	
+	public static void reset() {
+		hashCounter.set(0);
+		alreadyLoaded.clear();
 	}
 
 	private static final String LOOT_TABLE_CONTEXT = ForgeHooks.class.getCanonicalName()+"$LootTableContext";
@@ -113,7 +126,7 @@ public class ALTEventHandler {
 		Field busField = MinecraftForge.class.getDeclaredField(EVENT_BUS_FIELD_NAME);
 		busField.setAccessible(true);
 		removeFinalModifierFromField(busField);
-		busField.set(null,new EventBus());
+//		busField.set(null, new EventBus());	// TODO: Check this
 
 		return cache;
 	}

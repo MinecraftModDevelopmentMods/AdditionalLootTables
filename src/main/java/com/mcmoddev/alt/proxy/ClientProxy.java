@@ -7,13 +7,13 @@ public class ClientProxy extends CommonProxy {
 
 	@Override
     public World getWorld() {
-		Minecraft mc = Minecraft.getMinecraft();
+		Minecraft mc = Minecraft.getInstance();
 		
-		if( mc.isIntegratedServerRunning() ) {
-			return mc.getIntegratedServer().getEntityWorld();
-		} else {
+//		if( mc.isIntegratedServerRunning() ) {
+//			return mc.getIntegratedServer().getEntityWorld();
+//		} else {
 			return mc.world;
-		}
+//		}
     }
 
 }
