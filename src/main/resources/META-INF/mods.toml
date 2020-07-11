@@ -48,6 +48,6 @@ Adds a config folder for other mods to easily add to the default Minecraft loot 
 [[dependencies.alt]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.15.2]"
+    versionRange="[1.14,)"
     ordering="NONE"
     side="BOTH"

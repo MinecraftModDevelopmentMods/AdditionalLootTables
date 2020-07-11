@@ -27,7 +27,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.minecraft.util.LazyValue;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.storage.loot.LootPool;
 import net.minecraft.world.storage.loot.LootTableManager;
@@ -39,13 +38,19 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class ALTEventHandler {
-	public static final LazyValue<Gson> GSON = new LazyValue<>(
-			()->ObfuscationReflectionHelper.getPrivateValue(LootTableManager.class, null, "field_186526_b")
-			);
+	private static Gson GSON = null;
 	private static JsonParser parser = new JsonParser();
 	private static final AtomicInteger hashCounter = new AtomicInteger(0);
 	private static final List<String> alreadyLoaded = new ArrayList<>();
-	
+
+	public static Gson getGson() {
+		if (ALTEventHandler.GSON == null) {
+			ALTEventHandler.GSON = ObfuscationReflectionHelper.getPrivateValue(LootTableManager.class, null, "field_186526_b");
+		}
+
+		return ALTEventHandler.GSON;
+	}
+
 	public static void lootLoad(LootTableLoadEvent evt) {
 
 		
@@ -79,7 +84,7 @@ public class ALTEventHandler {
 									JsonObject work = pool.getAsJsonObject();
 									work.addProperty("name", String.format("_entry_%d", hashCounter.incrementAndGet()));
 
-									LootPool thePool = GSON.getValue().fromJson(GSON.getValue().toJson(work), LootPool.class);
+									LootPool thePool = getGson().fromJson(getGson().toJson(work), LootPool.class);
 									if( thePool != null ) {
 										evt.getTable().addPool(thePool);
 									}

@@ -56,7 +56,7 @@ public class ALTDumpCommand {
 					f.createNewFile();
 				}
 
-				String basic = ALTEventHandler.GSON.getValue().toJson(table);
+				String basic = ALTEventHandler.getGson().toJson(table);
 				String prettified = prettyPrinter.toJson(parser.parse(basic));
 				FileUtils.writeStringToFile(f, prettified, Charset.defaultCharset(), false);
 			} catch( IOException e ) {
